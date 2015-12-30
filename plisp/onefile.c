@@ -452,8 +452,8 @@ node *el_atom (node *args, node *env) {
 
 node *el_cond(node *args, node *env) {
     forlist (ptr in args)
-    if (not nilp(eval(caar(ptr), env)))
-        return eval(cadar(ptr), env);
+        if (not nilp(eval(caar(ptr), env)))
+            return eval(cadar(ptr), env);
     return nil;
 }
 
@@ -578,14 +578,15 @@ node *el_loop(node *args, node *env) {
     node *cond = nextarg(&args), *val = NULL;
     while(type(eval(cond, env)) is TEE) {
         forlist (ptr in args)
-        val = eval(car(ptr), env);
+            val = eval(car(ptr), env);
     }
     return val;
 }
 
 node *el_block(node *args, node *env) {
     node *res = nil;
-    forlist (ptr in args) res = eval(car(ptr), env);
+    forlist (ptr in args)
+        res = eval(car(ptr), env);
     return res;
 }
 
@@ -613,13 +614,14 @@ node *concat(node *l1, node *l2) {
 
 node *el_print(node *args, node *env) {
     forlist (ptr in args)
-    print(car(ptr));
+        print(car(ptr));
     return nil;
 }
 
 node *el_terpri(node *args, node *env) {
     int i, n = ival(nextarg(&args));
-    for (i = 0; i < n; i++) appendString("\n");
+    for (i = 0; i < n; i++)
+        appendString("\n");
     return nil;
 }
 
@@ -628,7 +630,8 @@ void add_pair(node *head, node *tail, node **list) {
 }
 
 void print_globals() {
-    forlist (ptr in globals) print(car(ptr));
+    forlist (ptr in globals)
+        print(car(ptr));
     appendString("\n");
 }
 
@@ -786,13 +789,15 @@ node *parse_string(char **input) {
 
 int length(node *l) {
     int n = 0;
-    forlist (ptr in l) n++;
+    forlist (ptr in l)
+        n++;
     return n;
 }
 
 node *assq(char *key, node *list) {
     forlist (ptr in list)
-    if (strcmp(key, name(caar(ptr))) is 0) return car(ptr);
+        if (strcmp(key, name(caar(ptr))) is 0)
+            return car(ptr);
     return NULL;
 }
 
@@ -806,7 +811,7 @@ node *lookupsym(char *name, node *env) {
 node *make_env(node *vars, node *vals, node *env) {
     node *nenv = NULL;
     forlist2 (pvar in vars, pval in vals)
-    add_pair(car(pvar), eval(car(pval), env), &nenv);
+        add_pair(car(pvar), eval(car(pval), env), &nenv);
     return newcontext(nenv);
 }
 
@@ -836,7 +841,7 @@ node *eval_list(node *sexp, node *env) {
     else {
         res = cons(head, NULL);
         forlist (ptr in cdr(sexp))
-        append(res, eval(car(ptr), env));
+            append(res, eval(car(ptr), env));
     }
     return res;
 }
