@@ -1,2 +1,0 @@
-(label recurse (lambda (x) (cond ((equal (car x) end) stop) (t (recurse (cdr x))))))
-(recurse (a b c d e f end))

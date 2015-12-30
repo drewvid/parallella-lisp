@@ -3,10 +3,12 @@ all: clean fl onefile
 	rm -f Trace.out
 
 build:
+	(cd code; python gencode.py)
 	e-reset
 	bash ./build.sh
 
 run:
+	(cd code; python gencode.py)
 	e-reset
 	bash ./run.sh
 

@@ -15,7 +15,7 @@ in the same directory. If you would like to build lisp to run on your local mach
 
      make
 
-Two version of lisp will be built which can be run by typing:
+Two versions of lisp will be built which can be run by typing:
 
      ./fl
      ./onefile
@@ -57,3 +57,5 @@ The following primitives have been included on top of the original 10.
 	=
 
 The code isn’t documented because I intend to do that with a series of blog posts over the next few months or so.
+
+The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP.
