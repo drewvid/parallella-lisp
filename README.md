@@ -1,7 +1,7 @@
 # parallella-lisp
 A small implementation of LISP for the Parallella-16 board
 
-LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in this language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and therefore stsrted there. The result is a small implementation of lisp which is void of any garbage collection but does run on the Parallella-16 board. 
+LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in this language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and therefore started there. The result is a small implementation of lisp which is void of any garbage collection but does run on the Parallella-16 board. 
 
 To build LISP for the parallella type:
 
