@@ -56,6 +56,6 @@ The following primitives have been included on top of the original 10.
 	* 
 	=
 
-The code isn’t documented because I intend to do that with a series of blog posts over the next few months or so.
+The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP. Python is also used to generate a single file which can be ported easily to another machine for testing and development.
 
-The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP.
+The code isn’t documented because I intend to do that with a series of blog posts over the next few months or so.
