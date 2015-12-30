@@ -37,12 +37,12 @@
 (= 100 100)
 
 (cdr xx)
-(cdr '(a b c))
-'a
-
-(car xx)
-(cond ( nil (quote b)) (t (quote c)))
-(atom 'a)
-'(a b c)
-(equal (car (cdr '(a b))) 'a)
+(equal 1 1)
+(cons 'a '(b c))
 (cond ((atom 'a) 'b) (t 'c))
+
+(equal t t)
+(cdr '(a b c))
+(equal nil nil)
+(car xx)
+(atom 'a)
