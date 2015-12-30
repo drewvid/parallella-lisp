@@ -37,12 +37,12 @@
 (= 100 100)
 
 
-(cond ( nil 'b) (t 'c))
-(cdr xx)
-(equal t t)
-(equal (car (cdr '(a b))) 'a)
-(atom 'a)
-(car '(a b c))
-(ff '(a b) (cdr '(c d)))
-(cond ((atom 'a) 'b) (t 'c))
+(equal nil nil)
 
+(ff '(a b) (cdr '(c d)))
+(cdr xx)
+(equal (car (cdr '(a b))) 'a)
+(cons 'a '(b c))
+(cond ( nil (quote b)) (t (quote c)))
+(cond ( nil 'b) (t 'c))
+'(a b c)
