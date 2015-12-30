@@ -36,13 +36,13 @@
 (+ 1 2 3) 
 (= 100 100)
 
-(car xx)
 (cons 'a '(b c))
-(ff '(a b) (cdr '(c d)))
-(equal 1 1)
-(equal (car '(a b)) 'a)
-(atom 'a)
+(equal (car (cdr '(a b))) 'a)
+(car '(a b c))
 '(a b c)
-'a
+(cond ( nil (quote b)) (t (quote c)))
 
-(equal nil nil)
+(cdr xx)
+(ff '(a b) (cdr '(c d)))
+(car xx)
+'a
