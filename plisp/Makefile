@@ -4,11 +4,11 @@ all: clean fl onefile
 
 build:
 	e-reset
-	./build.sh
+	bash ./build.sh
 
 run:
 	e-reset
-	./run.sh
+	bash ./run.sh
 
 fl: force
 	(cd code; python gencode.py)
