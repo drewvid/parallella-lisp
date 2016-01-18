@@ -36,13 +36,13 @@
 (+ 1 2 3) 
 (= 100 100)
 
-(ff '(a b) (cdr '(c d)))
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
 (cons 'a '(b c))
-(cdr '(a b c))
-'(a b c)
-
-(equal (car '(a b)) 'a)
-(car '(a b c))
 'a
+(equal (car (cdr '(a b))) 'a)
+(equal 1 1)
 (cdr xx)
+(car xx)
+(cond ( nil (quote b)) (t (quote c)))
+
+((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+

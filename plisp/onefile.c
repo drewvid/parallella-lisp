@@ -253,36 +253,28 @@ int main(void);
 
 #define BUF_ADDRESS 0x8f000000
 
-void appendString(char *item) {
-    int i;
-    for(i = 0; i < strlen(item); i++)
-        *result++ = *(item + i);
-    result[i] = '\0';
+void appendString(char *item) { // add a string to the output
+    for(char *s = item; *s != '\0'; s++)
+        *result++ = *s;
+    *result = '\0';
 }
 
 void appendFloat(double num, char bool) {
-    int i;
-    char tmp[16];
+    char tmp[NAMESTRMAX + 1];
     char *tptr = &tmp[0];
     sprintf(tptr, "%f", num);
-    for(i = 0; i < strlen(tmp); i++)
-        *result++ = *(tptr + i);
-    result[i] = '\0';
-    if (bool)
-        appendString("\n");
+    appendString(tptr);
+    if (bool) appendString("\n");
 }
 
 void appendInt(int num, char bool) {
-    int i;
-    char tmp[16];
+    char tmp[NAMESTRMAX + 1];
     char *tptr = &tmp[0];
     sprintf(tptr, "%d", num);
-    for(i = 0; i < strlen(tmp); i++)
-        *result++ = *(tptr + i);
-    result[i] = '\0';
-    if (bool)
-        appendString("\n");
+    appendString(tptr);
+    if (bool) appendString("\n");
 }
+
 
 #if EPIPHANY
 void setflag() {
@@ -360,8 +352,7 @@ node *sym (char *n) {
 }
 
 node *cons (node *head, node *tail) {
-    node *ptr = omalloc ();
-    type(ptr) = LIST;
+    node *ptr = newnode(LIST);
     rplaca(ptr, head);
     rplacd(ptr, tail);
     return ptr;
@@ -374,15 +365,13 @@ node *pair(node *head, node *tail) {
 }
 
 node *func (node* (*fn)(node*, node*), enum ltype type) {
-    node *ptr = omalloc ();
-    type(ptr) = type;
+    node *ptr = newnode(type);
     funcptr(ptr) = fn;
     return ptr;
 }
 
 node *lambda (node *args, node *sexp) {
-    node *ptr = omalloc ();
-    type(ptr) = LAMBDA;
+    node *ptr = newnode(LAMBDA);
     largs(ptr) = args;
     lbody(ptr) = sexp;
     return ptr;
@@ -934,7 +923,7 @@ void coreInit(void) {
 #endif
 
 int main(void) {
-    int row, col;
+    unsigned int row, col;
     char tmpbuf[16];
 
     id = coreID(&row, &col);

@@ -36,13 +36,13 @@
 (+ 1 2 3) 
 (= 100 100)
 
-(equal 1 1)
-(cond ( nil 'b) (t 'c))
-'(a b c)
-'a
-(cdr xx)
-(cdr '(a b c))
-(equal t t)
 (atom 'a)
+(car '(a b c))
+(equal (car '(a b)) 'a)
+(equal 1 1)
+(cdr '(a b c))
+(cdr xx)
+((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+'(a b c)
 
-
+(equal t t)

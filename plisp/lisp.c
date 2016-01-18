@@ -31,8 +31,7 @@ node *sym (char *n) {
 }
 
 node *cons (node *head, node *tail) {
-    node *ptr = omalloc ();
-    type(ptr) = LIST;
+    node *ptr = newnode(LIST);
     rplaca(ptr, head);
     rplacd(ptr, tail);
     return ptr;
@@ -45,15 +44,13 @@ node *pair(node *head, node *tail) {
 }
 
 node *func (node* (*fn)(node*, node*), enum ltype type) {
-    node *ptr = omalloc ();
-    type(ptr) = type;
+    node *ptr = newnode(type);
     funcptr(ptr) = fn;
     return ptr;
 }
 
 node *lambda (node *args, node *sexp) {
-    node *ptr = omalloc ();
-    type(ptr) = LAMBDA;
+    node *ptr = newnode(LAMBDA);
     largs(ptr) = args;
     lbody(ptr) = sexp;
     return ptr;

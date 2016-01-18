@@ -12,36 +12,28 @@
 
 #define BUF_ADDRESS 0x8f000000
 
-void appendString(char *item) {
-    int i;
-    for(i = 0; i < strlen(item); i++)
-        *result++ = *(item + i);
-    result[i] = '\0';
+void appendString(char *item) { // add a string to the output
+    for(char *s = item; *s != '\0'; s++)
+        *result++ = *s;
+    *result = '\0';
 }
 
 void appendFloat(double num, char bool) {
-    int i;
-    char tmp[16];
+    char tmp[NAMESTRMAX + 1];
     char *tptr = &tmp[0];
     sprintf(tptr, "%f", num);
-    for(i = 0; i < strlen(tmp); i++)
-        *result++ = *(tptr + i);
-    result[i] = '\0';
-    if (bool)
-        appendString("\n");
+    appendString(tptr);
+    if (bool) appendString("\n");
 }
 
 void appendInt(int num, char bool) {
-    int i;
-    char tmp[16];
+    char tmp[NAMESTRMAX + 1];
     char *tptr = &tmp[0];
     sprintf(tptr, "%d", num);
-    for(i = 0; i < strlen(tmp); i++)
-        *result++ = *(tptr + i);
-    result[i] = '\0';
-    if (bool)
-        appendString("\n");
+    appendString(tptr);
+    if (bool) appendString("\n");
 }
+
 
 #if EPIPHANY
 void setflag() {
@@ -153,7 +145,7 @@ void coreInit(void) {
 #endif
 
 int main(void) {
-    int row, col;
+    unsigned int row, col;
     char tmpbuf[16];
 
     id = coreID(&row, &col);
