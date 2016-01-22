@@ -16,6 +16,11 @@
                    )
                )
 )
+(label ll '())
+ll
+(label lll '((c)a(b)))
+lll
+(car lll)
 (recurse (a b c d e f))
 (nfibs 10)
 (define n 5)
@@ -36,13 +41,13 @@
 (+ 1 2 3) 
 (= 100 100)
 
-(cons 'a '(b c))
-'a
-(equal (car (cdr '(a b))) 'a)
+
 (equal 1 1)
-(cdr xx)
 (car xx)
-(cond ( nil (quote b)) (t (quote c)))
+(cond ((atom 'a) 'b) (t 'c))
+'(a b c)
+(ff '(a b) (cdr '(c d)))
 
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
-
+(cdr xx)
+(cond ( nil 'b) (t 'c))
+(equal (car '(a b)) 'a)

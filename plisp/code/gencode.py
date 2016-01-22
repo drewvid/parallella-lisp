@@ -18,6 +18,11 @@ setup="""
                    )
                )
 )
+(label ll '())
+ll
+(label lll '((c)a(b)))
+lll
+(car lll)
 (recurse (a b c d e f))
 (nfibs 10)
 (define n 5)

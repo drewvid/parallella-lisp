@@ -1,4 +1,4 @@
-enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, ENULL, TEE, ENV};
+enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, TEE, ENV};
 
 typedef struct DIRECTIVE fdef fdef;
 typedef struct DIRECTIVE node node;

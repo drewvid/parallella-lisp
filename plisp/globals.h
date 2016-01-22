@@ -4,9 +4,9 @@ int ncalls = 0;
 
 node *tee;
 node *nil;
-node *nullnode;
-node *globals = NULLPTR;
-node *top_env = NULLPTR;
+node *NULLPTR;
+node *globals;
+node *top_env;
 
 string *freeStringArray;
 node *freeNodeArray;

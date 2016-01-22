@@ -35,27 +35,25 @@
 #define in ,
 
 #define forlist(...) forlist_xp(forlist_in, (__VA_ARGS__))
-#define forlist_in(X, S) for(node *X = S; X isnt NULL; nextptr(X))
+#define forlist_in(X, S) for(node *X = S; X isnt NULLPTR; nextptr(X))
 #define forlist_xp(X, A) X A
 
 #define forlist2(...) forlist_xp(forlist_in2, (__VA_ARGS__))
-#define forlist_in2(X, S, XX, SS) for(node *X = S, *XX = SS; X isnt NULL and XX isnt NULL; nextptr(X), nextptr(XX))
+#define forlist_in2(X, S, XX, SS) for(node *X = S, *XX = SS; X isnt NULLPTR and XX isnt NULLPTR; nextptr(X), nextptr(XX))
 
 #define forheap(...) forlist_xp(forheap_in, (__VA_ARGS__))
-#define forheap_in(X, S) for(node *X = S; X isnt NULL; X = next(X))
+#define forheap_in(X, S) for(node *X = S; X isnt NULLPTR; X = next(X))
 
 #define PERMANENT 		2
 
-#define NULLPTR         (node *)0
 #define EOS             '\0'
 #define EOSP(X)         ((X) is EOS)
-#define EOI             nullnode
-#define EOIP(X)         ((X) is EOI)
-#define nullp(X)        ((X) is NULL)
+#define nullp(X)        ((X) is NULLPTR)
 
 #define ppval(X)        (**(X))
 #define ppdec(X)        ((*(X))--)
 #define ppvalinc(X)     (*(*(X))++)
+#define ppinc(X)     	(*(X))++
 
 #define nextptr(X)      ((X) = (X)->cdr)
 #define rplaca(X,Y)     ((X)->car = (Y))
@@ -78,7 +76,6 @@
 #define lambdap(X)      ((X) and (X)->type is LAMBDA)
 #define intp(X)      	((X) and (X)->type is INT)
 #define nilp(X)         ((X) and (X)->type is NIL)
-#define enullp(X)       ((X) and (X)->type is ENULL)
 #define teep(X)         ((X) and (X)->type is TEE)
 
 #define car(X)          ((X)->car)
@@ -86,7 +83,7 @@
 #define caar(X)         (car(car(X)))
 #define cadar(X)        (car(cdr(car(X))))
 
-enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, ENULL, TEE, ENV};
+enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, TEE, ENV};
 
 typedef struct DIRECTIVE fdef fdef;
 typedef struct DIRECTIVE node node;
@@ -158,9 +155,9 @@ int ncalls = 0;
 
 node *tee;
 node *nil;
-node *nullnode;
-node *globals = NULLPTR;
-node *top_env = NULLPTR;
+node *NULLPTR;
+node *globals;
+node *top_env;
 
 string *freeStringArray;
 node *freeNodeArray;
@@ -432,7 +429,7 @@ node *el_equal (node *args, node *env) {
 
 node *el_atom (node *args, node *env) {
     node *res = tee;
-    while (args isnt NULL and consp(args)) {
+    while (args isnt NULLPTR and consp(args)) {
         if (not symp(car(args))) res = nil;
         args = cdr(args);
     }
@@ -471,7 +468,7 @@ node *el_ldefine(node *args, node *env) {
     node *name1 = nextarg(&args), *val;
     val = eval(nextarg(&args), env);
     if (nullp(ebindings(env))) {
-        env->bindings = cons(pair(name1, val), NULL);
+        env->bindings = cons(pair(name1, val), NULLPTR);
         return val;
     }
     node *def = assq(name(name1), ebindings(env));
@@ -564,7 +561,7 @@ node *el_concat(node *args, node *env) {
 }
 
 node *el_loop(node *args, node *env) {
-    node *cond = nextarg(&args), *val = NULL;
+    node *cond = nextarg(&args), *val = NULLPTR;
     while(type(eval(cond, env)) is TEE) {
         forlist (ptr in args)
             val = eval(car(ptr), env);
@@ -591,7 +588,7 @@ node *lastcell(node *list) {
 
 node *append(node *list, node *obj) {
     node *ptr = lastcell(list);
-    rplacd(ptr, cons(obj, NULL));
+    rplacd(ptr, cons(obj, NULLPTR));
     return list;
 }
 
@@ -625,6 +622,9 @@ void print_globals() {
 }
 
 void init_lisp() {
+    NULLPTR = sym("NULLPTR");
+    globals = NULLPTR;
+    top_env = NULLPTR;
     add_pair(sym("quote") ,     func(&el_quote, FSUBR), &globals);
     add_pair(sym("car"),        func(&el_car, SUBR), &globals);
     add_pair(sym("cdr"),        func(&el_cdr, SUBR), &globals);
@@ -654,7 +654,6 @@ void init_lisp() {
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
     nil = newnode(NIL);
     tee = newnode(TEE);
-    nullnode = newnode(ENULL);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
     top_env = globals;
@@ -692,8 +691,6 @@ void print(node *sexp) {
         appendString(" fsubr");
     else if (nilp(sexp))
         appendString(" nil ");
-    else if (enullp(sexp))
-        appendString(" null ");
     else if (teep(sexp))
         appendString(" t ");
     else
@@ -718,12 +715,12 @@ void skip_whitespace( char **input) {
 
 void read_string(char **input, char *buffer) {
     int index = 0, ch = ppvalinc(input);
-    while(not isspace(ch) and ch isnt ')' and ch isnt '\0' and index < 256 - 1) {
+    while(not isspace(ch) and ch isnt '(' and ch isnt ')' and ch isnt '\0' and index < 256 - 1) {
         buffer[index++] = ch;
         ch = ppvalinc(input);
     }
     buffer[index++] = '\0';
-    if (ch is ')' or ch is '\0')
+    if (ch is '(' or ch is ')' or ch is '\0')
         ppdec(input);
 }
 
@@ -740,10 +737,13 @@ node *next_token(char **input) {
     skip_whitespace(input);
     ch = ppvalinc(input);
     if(ch is '\0') setflag();
-    if(ch is ')')
-        return sym(")");
-    else if(ch is '(')
+    if(ch is '(' and *(*input) == ')') {
+        ppinc(input);
+        return nil;
+    } else if(ch is '(')
         return sym("(");
+    else if(ch is ')')
+        return sym(")");
     else if (ch is '\'')
         return sym("'");
     else {
@@ -757,11 +757,11 @@ node *next_token(char **input) {
 node *read_tokens(char **input) {
     node *token = next_token(input), *head;
     if(strcmp(name(token),")") is 0)
-        return NULL;
+        return NULLPTR;
     else if(strcmp(name(token),"(") is 0)
         head = read_tokens(input);
     else if (symp(token) and strcmp(name(token), "'") is 0)
-        head = cons(sym("quote"), cons(parse_string(input), NULL));
+        head = cons(sym("quote"), cons(parse_string(input), NULLPTR));
     else
         head = token;
     return cons(head, read_tokens(input));
@@ -772,7 +772,7 @@ node *parse_string(char **input) {
     if(strcmp(name(token),"(") is 0)
         token = read_tokens(input);
     else if (symp(token) and strcmp(name(token), "'") is 0)
-        token = cons(sym("quote"), cons(parse_string(input), NULL));
+        token = cons(sym("quote"), cons(parse_string(input), NULLPTR));
     return token;
 }
 
@@ -787,18 +787,18 @@ node *assq(char *key, node *list) {
     forlist (ptr in list)
         if (strcmp(key, name(caar(ptr))) is 0)
             return car(ptr);
-    return NULL;
+    return NULLPTR;
 }
 
 node *lookupsym(char *name, node *env) {
     node *fptr = NULLPTR;
     if (ebindings(env) isnt NULLPTR) fptr = assq(name, ebindings(env));
     if(nullp(fptr))                   fptr = assq(name, globals);
-    return not nullp(fptr)? cdr(fptr) : NULL;
+    return not nullp(fptr)? cdr(fptr) : NULLPTR;
 }
 
 node *make_env(node *vars, node *vals, node *env) {
-    node *nenv = NULL;
+    node *nenv = NULLPTR;
     forlist2 (pvar in vars, pval in vals)
         add_pair(car(pvar), eval(car(pval), env), &nenv);
     return newcontext(nenv);
@@ -819,16 +819,16 @@ node *evform(node *fnode, node *exp, node *env) {
 
 node *evsym(node *exp, node *env) {
     node *val = lookupsym(name(exp), env);
-    if (val is NULL) val = exp;
+    if (val is NULLPTR) val = exp;
     return val;
 }
 
 node *eval_list(node *sexp, node *env) {
-    node *head = eval(car(sexp), env), *res = NULL;
+    node *head = eval(car(sexp), env), *res = NULLPTR;
     if (subrp(head) or fsubrp(head)) res = evform(head, cdr(sexp), env);
     else if (lambdap(head))          res = evlambda(cdr(sexp), head, env);
     else {
-        res = cons(head, NULL);
+        res = cons(head, NULLPTR);
         forlist (ptr in cdr(sexp))
             append(res, eval(car(ptr), env));
     }

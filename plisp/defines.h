@@ -26,27 +26,25 @@
 #define in ,
 
 #define forlist(...) forlist_xp(forlist_in, (__VA_ARGS__))
-#define forlist_in(X, S) for(node *X = S; X isnt NULL; nextptr(X))
+#define forlist_in(X, S) for(node *X = S; X isnt NULLPTR; nextptr(X))
 #define forlist_xp(X, A) X A
 
 #define forlist2(...) forlist_xp(forlist_in2, (__VA_ARGS__))
-#define forlist_in2(X, S, XX, SS) for(node *X = S, *XX = SS; X isnt NULL and XX isnt NULL; nextptr(X), nextptr(XX))
+#define forlist_in2(X, S, XX, SS) for(node *X = S, *XX = SS; X isnt NULLPTR and XX isnt NULLPTR; nextptr(X), nextptr(XX))
 
 #define forheap(...) forlist_xp(forheap_in, (__VA_ARGS__))
-#define forheap_in(X, S) for(node *X = S; X isnt NULL; X = next(X))
+#define forheap_in(X, S) for(node *X = S; X isnt NULLPTR; X = next(X))
 
 #define PERMANENT 		2
 
-#define NULLPTR         (node *)0
 #define EOS             '\0'
 #define EOSP(X)         ((X) is EOS)
-#define EOI             nullnode
-#define EOIP(X)         ((X) is EOI)
-#define nullp(X)        ((X) is NULL)
+#define nullp(X)        ((X) is NULLPTR)
 
 #define ppval(X)        (**(X))
 #define ppdec(X)        ((*(X))--)
 #define ppvalinc(X)     (*(*(X))++)
+#define ppinc(X)     	(*(X))++
 
 #define nextptr(X)      ((X) = (X)->cdr)
 #define rplaca(X,Y)     ((X)->car = (Y))
@@ -69,7 +67,6 @@
 #define lambdap(X)      ((X) and (X)->type is LAMBDA)
 #define intp(X)      	((X) and (X)->type is INT)
 #define nilp(X)         ((X) and (X)->type is NIL)
-#define enullp(X)       ((X) and (X)->type is ENULL)
 #define teep(X)         ((X) and (X)->type is TEE)
 
 #define car(X)          ((X)->car)
