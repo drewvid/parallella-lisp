@@ -41,13 +41,13 @@ lll
 (+ 1 2 3) 
 (= 100 100)
 
-
-'(a b c)
-'a
-
-(cond ( nil 'b) (t 'c))
-(car xx)
 (equal t t)
-(car '(a b c))
-(equal nil nil)
-(cdr '(a b c))
+(cond ( nil 'b) (t 'c))
+(equal 1 1)
+
+(cond ( nil (quote b)) (t (quote c)))
+'a
+(cond ((atom 'a) 'b) (t 'c))
+(cons 'a '(b c))
+(ff '(a b) (cdr '(c d)))
+(cdr xx)

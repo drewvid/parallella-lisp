@@ -439,7 +439,7 @@ void print(node *l) {
 	prpair(l);
     else if (consp(l)) {
         if (not nullp(l->cdr) and not consp(l->cdr)) // untyped dotted pair
-            prpair(l);
+                prpair(l);
         else { // list
             appendString("( ");
             forlist (ptr in l)
