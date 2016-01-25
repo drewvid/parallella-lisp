@@ -42,12 +42,12 @@ lll
 (= 100 100)
 
 
-(cdr '(a b c))
-(equal t t)
+'(a b c)
+'a
 
-(equal nil nil)
+(cond ( nil 'b) (t 'c))
 (car xx)
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
-(cond ((atom 'a) 'b) (t 'c))
-(cons 'a '(b c))
-(cdr xx)
+(equal t t)
+(car '(a b c))
+(equal nil nil)
+(cdr '(a b c))

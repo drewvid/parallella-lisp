@@ -20,7 +20,7 @@ if __name__ == '__main__':
     fp = open("fl-device.c", "r")
     for line in fp:
         n += 1
-        if "#include" in line and n > 4 and "e-lib" not in line:
+        if "#include" in line and n > 5 and "e-lib" not in line:
             prfile(line)
         else:
             out.write(line)

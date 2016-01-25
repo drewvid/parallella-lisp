@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdarg.h>
 
 #if EPIPHANY
 #include "e-lib.h"
@@ -12,25 +13,37 @@
 
 #define BUF_ADDRESS 0x8f000000
 
+//
+// string i/o
+//
+void itos(int i, char *buf) {
+    sprintf(buf, "%d", i);
+}
+
+int stoi(char* snum) {
+    int i;
+    sscanf(snum, "%d", &i);
+    return i;
+}
+
 void appendString(char *item) { // add a string to the output
     for(char *s = item; *s != '\0'; s++)
         *result++ = *s;
     *result = '\0';
 }
 
-void appendFloat(double num, char bool) {
-    char tmp[NAMESTRMAX + 1];
-    char *tptr = &tmp[0];
-    sprintf(tptr, "%f", num);
-    appendString(tptr);
-    if (bool) appendString("\n");
+void appendStrings(int count, ...) {
+    va_list args;
+    va_start(args, count);
+    while (count--)
+        appendString(va_arg(args, char *));
+    va_end(args);
 }
 
 void appendInt(int num, char bool) {
-    char tmp[NAMESTRMAX + 1];
-    char *tptr = &tmp[0];
-    sprintf(tptr, "%d", num);
-    appendString(tptr);
+    char buf[NAMESTRMAX + 1];
+    itos(num, buf);
+    appendString(buf);
     if (bool) appendString("\n");
 }
 

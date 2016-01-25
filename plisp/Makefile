@@ -4,7 +4,6 @@ all: clean fl onefile
 
 build:
 	(cd code; python gencode.py)
-	e-reset
 	bash ./build.sh
 
 run:
