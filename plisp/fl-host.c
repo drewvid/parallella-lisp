@@ -15,7 +15,7 @@
 char *lmem;
 
 //
-// Convert a pointer from device and host
+// Convert a pointer from device to host
 //
 char *host_ptr(char *ptr) {
     unsigned int diff = ptr - (char *)0x8f000000;
@@ -254,13 +254,15 @@ int main(void) {
     rows = platform.rows;
     cols = platform.cols;
 
+    //
+    // initialize the ememory data structure and freelist
+    //
     memory = init_ememory(rows, cols);
 
     //
     // open the device
     //
     e_open(&dev, 0, 0, rows, cols);
-
 
     //
     // Write the ememory data structure to device memory
@@ -272,7 +274,6 @@ int main(void) {
     //
     clear_done_flags(&dev, rows, cols);
     e_load_group("./fl-device.srec", &dev, 0, 0, rows, cols, E_TRUE);
-
 
     //
     // Poll the device waiting for all cores to finish
