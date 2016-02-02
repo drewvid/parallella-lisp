@@ -91,5 +91,5 @@ Here are some examples of the LISP code that this interpreter will execute.
           )
     )
 
-The code isn’t documented because I intend to do that with a series of blog posts towards the end of February of this year (2016). 
+The code isn’t documented because I intend to do so with a series of blog posts towards the end of February of this year (2016). 
 
