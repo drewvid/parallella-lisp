@@ -3,7 +3,7 @@ A small implementation of LISP for the Parallella-16 board
 
 LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in the language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and started there. The result is a small implementation of lisp which is void of any garbage collection but does run on the Parallella-16 board. 
 
-In the latest version of Parallella-lisp, released on the 1st Feb 2016, the printing of input and evaluated output has been moved to the host. Also the freelist conatining unallocated nodes is constructed on the host and written to the device. This makes the LISP interpreter smaller and frees up space for more functionality.
+In the latest version of Parallella-lisp, released on the 1st Feb 2016, the printing of input and evaluated output has been moved to the host. Also the freelist containing unallocated nodes is constructed on the host and written to the device. This makes the LISP interpreter smaller and frees up space for more functionality.
 
 The previous version is in the directory plisp-initial. The lastest version in the directory plisp.
 
