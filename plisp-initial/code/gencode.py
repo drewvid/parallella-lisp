@@ -1,4 +1,6 @@
+import random
 
+setup="""
 (label ff (lambda (x y)
               (cons (car x) y)
           )
@@ -63,14 +65,37 @@
 (* 3 3)
 (= 2 3)
 (= 2 2)
+"""
 
-(cdr xx)
-(cdr '(a b c))
+code = """
+'a
 '(a b c)
-(atom 'a)
-
-(equal nil nil)
 (car '(a b c))
+(cdr '(a b c))
+(cons 'a '(b c))
 (equal (car '(a b)) 'a)
-(ff '(a b) (cdr '(c d)))
+(equal (car (cdr '(a b))) 'a)
+(atom 'a)
+(cond ((atom 'a) 'b) (t 'c))
 (cond ( nil (quote b)) (t (quote c)))
+(cond ( nil 'b) (t 'c))
+((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+(equal nil nil)
+(equal t t)
+(equal 1 1)
+(ff '(a b) (cdr '(c d)))
+(cdr xx)
+(car xx)
+"""
+
+if __name__ == '__main__':
+
+    lines = code.split("\n");
+
+    for i in range(16):
+        sample = random.sample(lines, 10)
+        fp = open("p" + str(i) + ".lisp", "w")
+        fp.write(setup + "\n")
+        for line in sample:
+            fp.write(line + "\n")
+        fp.close()

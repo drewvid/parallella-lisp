@@ -66,11 +66,11 @@
 
 (equal (car (cdr '(a b))) 'a)
 '(a b c)
-(car xx)
 (cons 'a '(b c))
-(cond ( nil (quote b)) (t (quote c)))
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+
 (equal nil nil)
-(car '(a b c))
 (ff '(a b) (cdr '(c d)))
-(cdr '(a b c))
+(equal t t)
+
+((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+(car '(a b c))

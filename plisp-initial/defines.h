@@ -10,12 +10,12 @@
 #define NCORES 16
 #define BANKSIZE 8192
 #define STRINGMAX BANKSIZE
-#define NAMESTRMAX 32
+#define NAMESTRMAX 22
 #define LINELENGTH 1024
 
 #define FREESTRING 10
 #define FREEOBJECT 10000
-#define FREENAME 2000
+#define FREENAME 10000
 
 #define BUF_ADDRESS 0x8f000000
 
@@ -47,7 +47,7 @@
 #define ppvalinc(X)     (*(*(X))++)
 #define ppinc(X)     	(*(X))++
 
-#define nextptr(X)      ((X) = cdr(X))
+#define nextptr(X)      ((X) = (X)->cdr)
 #define rplaca(X,Y)     ((X)->car = (Y))
 #define rplacd(X,Y)     ((X)->cdr = (Y))
 

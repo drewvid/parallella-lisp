@@ -10,11 +10,7 @@ namestr *nmalloc(void) {
 }
 
 node *omalloc(void) {
-    if (freelist == NULL) {
-        setflag();
-    }
-    freeNodeIndex++;
-    return popNode(&freelist);
+    return &freeNodeArray[freeNodeIndex++];
 }
 
 //
@@ -30,7 +26,7 @@ node *sym (char *n) {
     node *ptr = newnode(SYM);
     namestr *name;
     name = nmalloc();
-    scopy(name->s, n);
+    strcpy(name->s, n);
     ptr->name = name;
     return ptr;
 }
@@ -61,7 +57,7 @@ node *lambda (node *args, node *sexp) {
     return ptr;
 }
 
-node* integer(long num) {
+node* integer(int num) {
     node *ptr = newnode(INT);
     ival(ptr) = num;
     return ptr;
@@ -126,7 +122,7 @@ node *popNode(node **stk) {
 //
 node *nextarg(node **pargs) {
     if (not consp(*pargs))
-        pr(sym("too few arguments\n"));
+        appendString("too few arguments\n");
     node *arg = car(*pargs);
     *pargs = cdr(*pargs);
     return arg;
@@ -141,17 +137,9 @@ char *name(node *o) {
 //
 // Symbol lookup/creation - environment creation
 //
-
-int strequal(char *s1, char *s2) {	// compare 2 strings
-    while (*s1 == *s2++)
-        if (*s1++ == '\0')
-            return (0);
-	return 1;
-}
-
 node *assq(char *key, node *list) {
     forlist (ptr in list)
-        if (strequal(key, name(caar(ptr))) is 0)
+        if (strcmp(key, name(caar(ptr))) is 0)
             return car(ptr);
     return NULLPTR;
 }
@@ -205,7 +193,7 @@ node *el_equal (node *args, node *env) {
     node *first = nextarg(&args);
     node *second = nextarg(&args);
     if (symp(first) and symp(second))
-        return strequal(name(first), name(second)) is 0? tee : nil;
+        return strcmp(name(first), name(second)) is 0? tee : nil;
     else
         return nil;
 }
@@ -299,11 +287,15 @@ node *el_progn(node *args, node *env) {
 }
 
 node *el_print(node *args, node *env) {
-    pr(args);
-    return args;
+    forlist (ptr in args)
+        print(car(ptr));
+    return nil;
 }
 
 node *el_terpri(node *args, node *env) {
+    int i, n = ival(nextarg(&args));
+    for (i = 0; i < n; i++)
+        appendString("\n");
     return nil;
 }
 
@@ -387,7 +379,6 @@ void init_lisp() {
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
     top_env = NULLPTR;
-    history = NULLPTR;
     add_pair(sym("eval") ,      func(&eval, SUBR), &globals);
     add_pair(sym("quote") ,     func(&el_quote, FSUBR), &globals);
     add_pair(sym("car"),        func(&el_car, SUBR), &globals);
@@ -421,6 +412,57 @@ void init_lisp() {
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
     top_env = globals;
+}
+
+//
+// print
+//
+void nl(void) {
+    appendString("\n");
+}
+
+void prpair(node *l) {
+    appendString("(");
+    print(car(l));
+    appendString(" . ");
+    print(cdr(l));
+    appendString(")");
+}
+
+void print(node *l) {
+    char buf[22];
+    if (nullp(l))
+        appendString("NULL");
+    else if (teep(l))
+         appendString(" t ");
+    else if (nilp(l))
+         appendString(" nil ");
+    else if (symp(l)) // symbol
+        appendStrings(3, " ", l->name->s, " ");
+    else if (intp(l)) { // Integer
+        itos(l->i, buf);
+        appendStrings(3, " ", buf, " ");
+    } else if(lambdap(l)) { // lambda expression
+        appendString ("#");
+        print(largs(l));
+        print(lbody(l));
+    } else if (subrp(l))
+        appendString(" subr");
+    else if (fsubrp(l))
+        appendString(" fsubr");
+    else if (pairp(l)) // pair
+        prpair(l);
+    else if (consp(l)) {
+        if (not nullp(l->cdr) and not consp(l->cdr)) // untyped dotted pair
+            prpair(l);
+        else { // list
+            appendString("( ");
+            forlist (ptr in l)
+                print(car(ptr));
+            appendString(" )");
+        }
+    } else
+        appendString(" Something went wrong ");
 }
 
 //
@@ -469,7 +511,7 @@ node *tokenize(char **code) {
 //
 // Parse
 //
-int equal(node *sym, char *s2) {
+int equal(node *sym, char *s2) {    // compare 2 strings
     char *s1 = sym->name->s;
     while (*s1 is *s2++)
         if (*s1++ is '\0')
@@ -603,11 +645,14 @@ void REPL(char *input) {
 
     node *val;
 
-    node *l = parse_string(&input);
+    node *l = parse_string(&input); nl();
 
     forlist (sexp in l) {
-        pr(car(sexp));
+        appendString ("> ");
+        print(car(sexp));
+        appendString("\n");
         val = eval(car(sexp), top_env);
-        pr(val);
+        print(val);
+        appendString("\n");
     }
 }

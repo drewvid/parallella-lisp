@@ -1,17 +1,21 @@
 # parallella-lisp
 A small implementation of LISP for the Parallella-16 board
 
-LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in this language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and therefore started there. The result is a small implementation of lisp which is void of any garbage collection but does run on the Parallella-16 board. 
+LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in the language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and started there. The result is a small implementation of lisp which is void of any garbage collection but does run on the Parallella-16 board. 
 
-To build LISP for the parallella type:
+In the latest version of Parallella-lisp, released on the 1st Feb 2016, the printing of input and evaluated output has been moved to the host. Also the freelist conatining unallocated nodes is constructed on the host and written to the device. This makes the LISP interpreter smaller and frees up space for more functionality.
+
+The previous version is in the directory plisp-initial. The lastest version in the directory plisp.
+
+To build LISP for the parallella in either of the directories type:
 
       make build
 
-in the pcode directory. To run LISP type:
+To run LISP type:
 
       make run
 
-in the same directory. If you would like to build lisp to run on your local machine then just type:
+If you would like to build lisp to run on your local machine then type:
 
      make
 
@@ -20,12 +24,10 @@ Two versions of lisp will be built which can be run by typing:
      ./fl
      ./onefile
 
-This version of LISP has no garbage collector and just enough primitives to get something going.
-
-The 10 primitive suggested by John McCarthy's paper are:
+This version of LISP includes the 10 primitives suggested by John McCarthy's which are:
 
 	atom
-	eq
+	equal
 	car
 	cdr
 	cons
@@ -35,7 +37,7 @@ The 10 primitive suggested by John McCarthy's paper are:
 	label
 	eval
 
-The following primitives have been included on top of the original 10.
+In addition the following primitives have been included on top of the original 10.
 
 	nilp 
 	append 
@@ -89,5 +91,5 @@ Here are some examples of the LISP code that this interpreter will execute.
           )
     )
 
-The code isn’t documented because I intend to do that with a series of blog posts over the next few months or so.
+The code isn’t documented because I intend to do that with a series of blog posts towards the end of February of this year (2016). 
 

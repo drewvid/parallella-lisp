@@ -8,6 +8,7 @@ build:
 
 run:
 	(cd code; python gencode.py)
+	e-reset
 	bash ./run.sh
 
 fl: force
@@ -25,4 +26,4 @@ proto:
 force:
 
 clean:
-	rm -f fl onefile initmem *.elf *.srec *.o *.exe* Trace.out
+	rm -f fl onefile *.elf *.srec *.exe*

@@ -20,12 +20,12 @@
 #define NCORES 16
 #define BANKSIZE 8192
 #define STRINGMAX BANKSIZE
-#define NAMESTRMAX 22
+#define NAMESTRMAX 32
 #define LINELENGTH 1024
 
 #define FREESTRING 10
 #define FREEOBJECT 10000
-#define FREENAME 10000
+#define FREENAME 2000
 
 #define BUF_ADDRESS 0x8f000000
 
@@ -57,7 +57,7 @@
 #define ppvalinc(X)     (*(*(X))++)
 #define ppinc(X)     	(*(X))++
 
-#define nextptr(X)      ((X) = (X)->cdr)
+#define nextptr(X)      ((X) = cdr(X))
 #define rplaca(X,Y)     ((X)->car = (Y))
 #define rplacd(X,Y)     ((X)->cdr = (Y))
 
@@ -85,7 +85,7 @@
 #define caar(X)         (car(car(X)))
 #define cadar(X)        (car(cdr(car(X))))
 
-enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, TEE, ENV};
+enum ltype {PAIR, LIST, SYM, SUBR, FSUBR, LAMBDA, INT, NIL, TEE, ENV, FREE};
 
 typedef struct DIRECTIVE fdef fdef;
 typedef struct DIRECTIVE node node;
@@ -97,6 +97,8 @@ typedef struct DIRECTIVE ememory ememory;
 
 struct DIRECTIVE node {
     enum ltype type;
+    unsigned char mark;
+    node *next;
     union {
         namestr *name;
         struct {
@@ -121,17 +123,13 @@ struct DIRECTIVE node {
 };
 
 struct DIRECTIVE string {
+    unsigned char mark;
     char s[STRINGMAX];
 };
 
 struct DIRECTIVE namestr {
+    unsigned char mark;
     char s[NAMESTRMAX];
-};
-
-struct DIRECTIVE fdef {
-    const char *fname;
-    int type;
-    node *(*fn)(node *, node *);
 };
 
 struct DIRECTIVE edata {
@@ -139,15 +137,16 @@ struct DIRECTIVE edata {
     int col;
     int id;
     int finished;
+    node *NULLPTR;
+    node *history;
+    node *freelist;
     char code[BANKSIZE];
-    char output[BANKSIZE];
     string freeStringArray[FREESTRING];
     node freeNodeArray[FREEOBJECT];
     namestr freeNameArray[FREENAME];
 };
 
 struct DIRECTIVE ememory {
-    char code[BANKSIZE];
     edata data[NCORES];
 };
 
@@ -160,6 +159,8 @@ node *nil;
 node *NULLPTR;
 node *globals;
 node *top_env;
+node *history;
+node *freelist;
 
 string *freeStringArray;
 node *freeNodeArray;
@@ -175,11 +176,18 @@ int id;
 
 
 /* fl-device.c */
-void itos(int i, char *buf);
-int stoi(char *snum);
-void appendString(char *item);
-void appendStrings(int count, ...);
-void appendInt(int num, char bool);
+void pr(node *cell);
+void addInt(long i);
+void addString(char *s);
+char *scopy(char *s1, const char *s2);
+long stoi(const char *c);
+void prStats(void);
+char *readFile(char *fileName);
+void createFreelist(ememory *memory, int rows, int cols);
+int coreID(unsigned int *row, unsigned int *col);
+void coreInit(void);
+void prpair(node *l);
+void print(node *l);
 void setflag(void);
 string *smalloc(void);
 namestr *nmalloc(void);
@@ -190,7 +198,7 @@ node *cons(node *head, node *tail);
 node *pair(node *head, node *tail);
 node *func(node *(*fn)(node *, node *), enum ltype type);
 node *lambda(node *args, node *sexp);
-node *integer(int num);
+node *integer(long num);
 node *newcontext(node *bindings);
 node *lastcell(node *list);
 node *append(node *list, node *obj);
@@ -201,6 +209,7 @@ void pushNode(node *item, node **stk);
 node *popNode(node **stk);
 node *nextarg(node **pargs);
 char *name(node *o);
+int strequal(char *s1, char *s2);
 node *assq(char *key, node *list);
 node *lookupsym(char *name, node *env);
 node *make_env(node *vars, node *vals, node *env);
@@ -233,9 +242,6 @@ node *el_minus(node *args, node *env);
 node *el_times(node *args, node *env);
 node *el_divide(node *args, node *env);
 void init_lisp(void);
-void nl(void);
-void prpair(node *l);
-void print(node *l);
 int getChar(char **s);
 int ungetChar(char **s);
 char *getToken(char **s, char *token);
@@ -253,64 +259,117 @@ node *evsym(node *exp, node *env);
 node *eval_list(node *sexp, node *env);
 node *eval(node *input, node *env);
 void REPL(char *input);
-char *readFile(char *fileName);
-int coreID(unsigned int *row, unsigned int *col);
-void coreInit(void);
 int main(void);
 
 
 #define BUF_ADDRESS 0x8f000000
 
 //
-// string i/o
+// Add items to the history
 //
-void itos(int i, char *buf) {
-    sprintf(buf, "%d", i);
+void pr(node *cell) {
+    atl(&history, cell);
 }
 
-int stoi(char* snum) {
-    int i;
-    sscanf(snum, "%d", &i);
-    return i;
+void addInt(long i) {
+    pr(integer(i));
 }
 
-void appendString(char *item) { // add a string to the output
-    for(char *s = item; *s != '\0'; s++)
-        *result++ = *s;
-    *result = '\0';
+void addString(char *s) {
+    pr(sym(s));
 }
 
-void appendStrings(int count, ...) {
-    va_list args;
-    va_start(args, count);
-    while (count--)
-        appendString(va_arg(args, char *));
-    va_end(args);
+//
+// local version of strcpy
+//
+char *scopy(char *s1, const char *s2) {
+    char *s = s1;
+    while ((*s++ = *s2++) != '\0')
+        ;
+    *s = '\0';
+    return (s1);
 }
 
-void appendInt(int num, char bool) {
-    char buf[NAMESTRMAX + 1];
-    itos(num, buf);
-    appendString(buf);
-    if (bool) appendString("\n");
+//
+// local version of atoi
+//
+long stoi(const char *c)
+{
+    long value = 0;
+    int sign = 1;
+    if( *c == '+' || *c == '-' ) {
+        if( *c == '-' ) sign = -1;
+        c++;
+    }
+    while (isdigit(*c)) {
+        value *= 10;
+        value += (int) (*c-'0');
+        c++;
+    }
+    return (value * sign);
 }
 
+//
+// add memory stats to the history list
+//
+void prStats() {
+    pr(sym("id:"));
+    pr(integer(id));
+    addString("node size: ");
+    addInt(sizeof(node));
+    addString("strings allocated: ");
+    addInt(freeStringIndex);
+    addString("node allocated: ");
+    addInt(freeNodeIndex);
+    addString("names allocated: ");
+    addInt(freeNameIndex);
+    addString("memory size: ");
+    addInt(sizeof(ememory));
+}
 
 #if EPIPHANY
+
+//
+// get the core ID
+//
+int coreID(unsigned int *row, unsigned int *col) {
+
+    e_coreid_t coreid;
+
+    coreid = e_get_coreid();
+    coreid = coreid - e_group_config.group_id;
+    *row = (coreid >> 6) & 0x3f;
+    *col = coreid & 0x3f;
+
+    return((*row * 4) + *col);
+}
+
+//
+// Initilaize core memory
+//
+void coreInit() {
+
+    memory = (ememory *)(BUF_ADDRESS);
+
+    freeStringArray = &memory->data[id].freeStringArray[0];
+    freeNodeArray = &memory->data[id].freeNodeArray[0];
+    freeNameArray = &memory->data[id].freeNameArray[0];
+    
+    freelist = freeNodeArray;
+
+}
+
+//
+// Print memory stats and store a pointer to the history list.
+// Put the processor in idle mode
+//
 void setflag() {
     unsigned *d;
 
-    appendString("\nnode size: ");
-    appendInt(sizeof(node), TRUE);
-    appendString("strings allocated: ");
-    appendInt(freeStringIndex, TRUE);
-    appendString("node allocated: ");
-    appendInt(freeNodeIndex, TRUE);
-    appendString("names allocated: ");
-    appendInt(freeNameIndex, TRUE);
-    appendString("memory size: ");
-    appendInt(sizeof(ememory), TRUE);
+    prStats();
 
+    memory->data[id].NULLPTR = NULLPTR;
+    memory->data[id].history = history;
     memory->data[id].finished = 1;
 
     d = (unsigned *) 0x7000;
@@ -318,23 +377,139 @@ void setflag() {
 
     __asm__ __volatile__("idle");
 }
+
 #else
+
+//
+// Read a text file
+//
+char *readFile(char *fileName) {
+    FILE *file = fopen(fileName, "r");
+    string *code;
+    size_t n = 0;
+    int c;
+    if (file == NULL) return NULL;
+    code = smalloc();
+    while ((c = fgetc(file)) != EOF)
+        code->s[n++] = (char)c;
+    code->s[n] = '\0';
+    return code->s;
+}
+
+//
+// Create the freelist
+//
+void createFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    node *freeNodeArray;
+
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (4 * i) + j;
+            freeNodeArray = memory->data[id].freeNodeArray;
+            for (k = 0; k < FREEOBJECT - 1; k++) {
+                freeNodeArray[k].cdr = &freeNodeArray[k + 1];
+                freeNodeArray[k].type = FREE;
+                freeNodeArray[k].i = k + 1;
+            }
+            freeNodeArray[FREEOBJECT - 1].cdr = NULL;
+            freeNodeArray[FREEOBJECT - 1].i = k + 1;
+        }
+    }
+}
+
+//
+// Generate a core ID for testing
+//
+int coreID(unsigned int *row, unsigned int *col) {
+
+    *row = 1;
+    *col = 1;
+
+    return((*row * 4) + *col);
+}
+
+//
+// Initialize globals
+//
+void coreInit(void) {
+    char *code;
+
+    memory = (ememory *)malloc(sizeof(ememory));
+
+    freeStringArray = &memory->data[id].freeStringArray[0];
+    freeNodeArray = &memory->data[id].freeNodeArray[0];
+    freeNameArray = &memory->data[id].freeNameArray[0];
+
+    freelist = freeNodeArray;
+
+    code = readFile("code/p2.lisp");
+    scopy(memory->data[id].code, code);
+
+    createFreelist(memory, 4, 4);
+    
+}
+
+//
+// Printing routines
+//
+void prpair(node *l) {
+    printf("%s", "(");
+    print(car(l));
+    printf("%s", ".");
+    print(cdr(l));
+    printf("%s", ")");
+}
+
+void print(node *l) {
+    if (nullp(l))
+        printf(" NULL ");
+    else if (teep(l))
+         printf(" t ");
+    else if (nilp(l))
+         printf(" nil ");
+    else if (symp(l)) // symbol
+        printf(" %s ", name(l));
+    else if (intp(l)) // integer
+        printf(" %ld ", ival(l));
+    else if(lambdap(l)) { // lambda expression
+        printf(" #lambda ");
+        print(largs(l));
+        print(lbody(l));
+    } else if (subrp(l))
+        printf(" subr ");
+    else if (fsubrp(l))
+        printf(" fsubr ");
+    else if (pairp(l)) // pair
+        prpair(l);
+    else if (consp(l)) {
+        if (not nullp(cdr(l)) and not consp(cdr(l))) // untyped dotted pair
+            prpair(l);
+        else { // list
+            printf("( ");
+            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr))
+                print(car(ptr));
+            printf(" )");
+        }
+    } else
+        printf(" Something went wrong \n");
+}
+
+//
+// Print out the history list and exit
+//
 void setflag() {
 
-    appendString("\nnode size: ");
-    appendInt(sizeof(node), TRUE);
-    appendString("strings allocated: ");
-    appendInt(freeStringIndex, TRUE);
-    appendString("node allocated: ");
-    appendInt(freeNodeIndex, TRUE);
-    appendString("names allocated: ");
-    appendInt(freeNameIndex, TRUE);
-    appendString("memory size: ");
-    appendInt(sizeof(ememory), TRUE);
+    prStats();
 
-    printf("%s", output);
+    forlist (ptr in history) {
+        print(car(ptr));
+        printf("\n");
+    }
+
     exit(0);
 }
+
 #endif
 
 // LISP Code
@@ -351,7 +526,11 @@ namestr *nmalloc(void) {
 }
 
 node *omalloc(void) {
-    return &freeNodeArray[freeNodeIndex++];
+    if (freelist == NULL) {
+        setflag();
+    }
+    freeNodeIndex++;
+    return popNode(&freelist);
 }
 
 //
@@ -367,7 +546,7 @@ node *sym (char *n) {
     node *ptr = newnode(SYM);
     namestr *name;
     name = nmalloc();
-    strcpy(name->s, n);
+    scopy(name->s, n);
     ptr->name = name;
     return ptr;
 }
@@ -398,7 +577,7 @@ node *lambda (node *args, node *sexp) {
     return ptr;
 }
 
-node* integer(int num) {
+node* integer(long num) {
     node *ptr = newnode(INT);
     ival(ptr) = num;
     return ptr;
@@ -463,7 +642,7 @@ node *popNode(node **stk) {
 //
 node *nextarg(node **pargs) {
     if (not consp(*pargs))
-        appendString("too few arguments\n");
+        pr(sym("too few arguments\n"));
     node *arg = car(*pargs);
     *pargs = cdr(*pargs);
     return arg;
@@ -478,9 +657,17 @@ char *name(node *o) {
 //
 // Symbol lookup/creation - environment creation
 //
+
+int strequal(char *s1, char *s2) {	// compare 2 strings
+    while (*s1 == *s2++)
+        if (*s1++ == '\0')
+            return (0);
+	return 1;
+}
+
 node *assq(char *key, node *list) {
     forlist (ptr in list)
-        if (strcmp(key, name(caar(ptr))) is 0)
+        if (strequal(key, name(caar(ptr))) is 0)
             return car(ptr);
     return NULLPTR;
 }
@@ -534,7 +721,7 @@ node *el_equal (node *args, node *env) {
     node *first = nextarg(&args);
     node *second = nextarg(&args);
     if (symp(first) and symp(second))
-        return strcmp(name(first), name(second)) is 0? tee : nil;
+        return strequal(name(first), name(second)) is 0? tee : nil;
     else
         return nil;
 }
@@ -628,15 +815,11 @@ node *el_progn(node *args, node *env) {
 }
 
 node *el_print(node *args, node *env) {
-    forlist (ptr in args)
-        print(car(ptr));
-    return nil;
+    pr(args);
+    return args;
 }
 
 node *el_terpri(node *args, node *env) {
-    int i, n = ival(nextarg(&args));
-    for (i = 0; i < n; i++)
-        appendString("\n");
     return nil;
 }
 
@@ -720,6 +903,7 @@ void init_lisp() {
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
     top_env = NULLPTR;
+    history = NULLPTR;
     add_pair(sym("eval") ,      func(&eval, SUBR), &globals);
     add_pair(sym("quote") ,     func(&el_quote, FSUBR), &globals);
     add_pair(sym("car"),        func(&el_car, SUBR), &globals);
@@ -753,57 +937,6 @@ void init_lisp() {
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
     top_env = globals;
-}
-
-//
-// print
-//
-void nl(void) {
-    appendString("\n");
-}
-
-void prpair(node *l) {
-    appendString("(");
-    print(car(l));
-    appendString(" . ");
-    print(cdr(l));
-    appendString(")");
-}
-
-void print(node *l) {
-    char buf[22];
-    if (nullp(l))
-        appendString("NULL");
-    else if (teep(l))
-         appendString(" t ");
-    else if (nilp(l))
-         appendString(" nil ");
-    else if (symp(l)) // symbol
-        appendStrings(3, " ", l->name->s, " ");
-    else if (intp(l)) { // Integer
-        itos(l->i, buf);
-        appendStrings(3, " ", buf, " ");
-    } else if(lambdap(l)) { // lambda expression
-        appendString ("#");
-        print(largs(l));
-        print(lbody(l));
-    } else if (subrp(l))
-        appendString(" subr");
-    else if (fsubrp(l))
-        appendString(" fsubr");
-    else if (pairp(l)) // pair
-        prpair(l);
-    else if (consp(l)) {
-        if (not nullp(l->cdr) and not consp(l->cdr)) // untyped dotted pair
-            prpair(l);
-        else { // list
-            appendString("( ");
-            forlist (ptr in l)
-                print(car(ptr));
-            appendString(" )");
-        }
-    } else
-        appendString(" Something went wrong ");
 }
 
 //
@@ -852,7 +985,7 @@ node *tokenize(char **code) {
 //
 // Parse
 //
-int equal(node *sym, char *s2) {    // compare 2 strings
+int equal(node *sym, char *s2) {
     char *s1 = sym->name->s;
     while (*s1 is *s2++)
         if (*s1++ is '\0')
@@ -986,104 +1119,47 @@ void REPL(char *input) {
 
     node *val;
 
-    node *l = parse_string(&input); nl();
+    node *l = parse_string(&input);
 
     forlist (sexp in l) {
-        appendString ("> ");
-        print(car(sexp));
-        appendString("\n");
+        pr(car(sexp));
         val = eval(car(sexp), top_env);
-        print(val);
-        appendString("\n");
+        pr(val);
     }
 }
 
 
 // End of LISP Code
 
-#if EPIPHANY
-
-int coreID(unsigned int *row, unsigned int *col) {
-
-    e_coreid_t coreid;
-
-    coreid = e_get_coreid();
-    coreid = coreid - e_group_config.group_id;
-    *row = (coreid >> 6) & 0x3f;
-    *col = coreid & 0x3f;
-
-    return((*row * 4) + *col);
-}
-
-void coreInit() {
-
-    memory = (ememory *)(BUF_ADDRESS);
-
-    freeStringArray = &memory->data[id].freeStringArray[0];
-    freeNodeArray = &memory->data[id].freeNodeArray[0];
-    freeNameArray = &memory->data[id].freeNameArray[0];
-
-}
-
-#else
-
-char *readFile(char *fileName) {
-    FILE *file = fopen(fileName, "r");
-    string *code;
-    size_t n = 0;
-    int c;
-    if (file == NULL) return NULL;
-    code = smalloc();
-    while ((c = fgetc(file)) != EOF)
-        code->s[n++] = (char)c;
-    code->s[n] = '\0';
-    return code->s;
-}
-
-int coreID(unsigned int *row, unsigned int *col) {
-
-    *row = 1;
-    *col = 1;
-
-    return((*row * 4) + *col);
-}
-
-void coreInit(void) {
-    char *code;
-
-    memory = (ememory *)malloc(sizeof(ememory));
-
-    freeStringArray = &memory->data[id].freeStringArray[0];
-    freeNodeArray = &memory->data[id].freeNodeArray[0];
-    freeNameArray = &memory->data[id].freeNameArray[0];
-
-    code = readFile("code/p2.lisp");
-    sprintf(memory->data[id].code, "%s", code);
-}
-
-#endif
-
+//
+// test on the host - simulate the info for a single core
+//
 int main(void) {
     unsigned int row, col;
-    char tmpbuf[16];
 
+    //
+    // get the core id
+    //
     id = coreID(&row, &col);
 
+    //
+    // Initialize the core
+    //
     coreInit();
 
-
+    //
+    // use the code for processor zero as the input
+    //
     input = &memory->data[id].code[0];
-    output = &memory->data[id].output[0];
 
-    result = output;
-    memset(output, 0, BANKSIZE);
-
-    appendInt(id, TRUE);
-    sprintf(tmpbuf, "(%d, %d)\n", row + 1, col + 1);
-    appendString(tmpbuf);
-
+    //
+    // Read, Eval and Print
+    //
     REPL(input);
 
+    //
+    // Print stats and exit
+    //
     setflag();
 
     return 0;
