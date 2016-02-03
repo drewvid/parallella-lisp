@@ -7,7 +7,7 @@ In the latest version of Parallella-lisp, released on the 1st Feb 2016, the prin
 
 The previous version is in the directory plisp-initial. The lastest version in the directory plisp.
 
-To build LISP for the parallella in either of the directories type:
+To build LISP for the parallella in either of these directories type:
 
       make build
 
