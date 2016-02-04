@@ -24,7 +24,7 @@ Two versions of lisp will be built which can be run by typing:
      ./fl
      ./onefile
 
-Parallella-lisp includes the 10 primitives suggested by John McCarthy's which are:
+Parallella-lisp includes the 10 primitives suggested by John McCarthy which are:
 
     atom
     equal
