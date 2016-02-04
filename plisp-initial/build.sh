@@ -25,7 +25,7 @@ esac
 
 ${CROSS_PREFIX}gcc -O3 -std=gnu99 -Wno-format-security fl-host.c -o fl-host.elf -I ${EINCS} -L ${ELIBS} -le-hal  -le-loader -lpthread
 
-e-gcc -O3 -DEPIPHANY=1 -std=gnu99 -T ${ELDF} fl-device.c -o fl-device.elf -le-lib
+e-gcc -O -DEPIPHANY=1 -std=gnu99 -T ${ELDF} fl-device.c -o fl-device.elf -le-lib
 
 e-objcopy --srec-forceS3 --output-target srec fl-device.elf fl-device.srec
 
