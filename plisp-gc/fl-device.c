@@ -315,7 +315,7 @@ int main(void) {
     coreInit();
 
     //
-    // use the code for processor zero as the input
+    // load the code
     //
     input = &memory->data[id].code[0];
 
