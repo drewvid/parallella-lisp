@@ -438,7 +438,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
     node *freeNodeArray;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
                 freeNodeArray[k].next = &freeNodeArray[k + 1];
@@ -454,7 +454,7 @@ void createStringFreelist(ememory *memory, int rows, int cols) {
     string *freeStringArray;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeStringArray = memory->data[id].freeStringArray;
             for (k = 0; k < FREESTRING - 1; k++) {
                 freeStringArray[k].next = &freeStringArray[k + 1];
@@ -469,7 +469,7 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
     namestr *freeNameArray;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNameArray = memory->data[id].freeNameArray;
             for (k = 0; k < FREENAME - 1; k++) {
                 freeNameArray[k].next = &freeNameArray[k + 1];
@@ -663,8 +663,7 @@ void mark_expr(node *o, unsigned char persistence) {
         if (not nullp(o)) mark_expr(o->args, persistence);
         if (not nullp(o)) mark_expr(o->body, persistence);
     }
-    if (o->marked <= 1)
-        o->marked = persistence;
+    o->marked = persistence;
     return;
 }
 
