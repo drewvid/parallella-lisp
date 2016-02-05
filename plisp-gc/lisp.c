@@ -83,7 +83,8 @@ void mark_expr(node *o, unsigned char persistence) {
         if (not nullp(o)) mark_expr(o->args, persistence);
         if (not nullp(o)) mark_expr(o->body, persistence);
     }
-    o->marked = persistence;
+    if (o->marked <= 1)
+        o->marked = persistence;
     return;
 }
 
