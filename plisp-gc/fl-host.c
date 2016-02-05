@@ -143,7 +143,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
 
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
                 char *ptr = (char *)&freeNodeArray[k + 1];
@@ -164,7 +164,7 @@ void createStringFreelist(ememory *memory, int rows, int cols) {
 
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeStringArray = memory->data[id].freeStringArray;
             for (k = 0; k < FREESTRING - 1; k++) {
                 char *ptr = (char *)&freeStringArray[k + 1];
@@ -184,7 +184,7 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNameArray = memory->data[id].freeNameArray;
             for (k = 0; k < FREENAME - 1; k++) {
                 char *ptr = (char *)&freeNameArray[k + 1];

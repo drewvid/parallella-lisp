@@ -103,7 +103,7 @@ void coreInit() {
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
-    
+
     freelist = freeNodeArray;
 
 }
@@ -154,7 +154,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
 
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
                 freeNodeArray[k].cdr = &freeNodeArray[k + 1];
@@ -196,7 +196,7 @@ void coreInit(void) {
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
-    
+
 }
 
 //

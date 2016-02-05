@@ -139,13 +139,13 @@ node *device_ptr(char *base, char *ptr) {
 // create the freelist for node allocation on the device
 //
 void createFreelist(ememory *memory, int rows, int cols) {
-	int id, k;
-	node *freeNodeArray;
+    int id, k;
+    node *freeNodeArray;
     char *base = (char *)memory;
 
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
                 char *ptr = (char *)&freeNodeArray[k + 1];

@@ -86,7 +86,7 @@ int main(void) {
 
     for (i=0; i<rows; i++) {
         for (j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             printf("%s\n", memory.data[id].output);
         }
     }
