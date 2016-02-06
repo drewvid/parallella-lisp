@@ -12,11 +12,11 @@ run:
 
 fl: force
 	(cd code; python gencode.py)
-	gcc -std=gnu99 -o fl fl-device.c
+	gcc -Os -std=gnu99 -o fl fl-device.c
 
 onefile: force
 	python onefile.py
-	gcc -std=gnu99 -o onefile onefile.c
+	gcc -Os -std=gnu99 -o onefile onefile.c
 	wc -l onefile.c
 
 proto:

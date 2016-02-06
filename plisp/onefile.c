@@ -14,8 +14,8 @@
 #define DIRECTIVE
 #endif
 
-#define	TRUE	1
-#define	FALSE	0
+#define TRUE    1
+#define FALSE   0
 
 #define NCORES 16
 #define BANKSIZE 8192
@@ -46,7 +46,7 @@
 #define forheap(...) forlist_xp(forheap_in, (__VA_ARGS__))
 #define forheap_in(X, S) for(node *X = S; X isnt NULLPTR; X = next(X))
 
-#define PERMANENT 		2
+#define PERMANENT       2
 
 #define EOS             '\0'
 #define EOSP(X)         ((X) is EOS)
@@ -55,7 +55,7 @@
 #define ppval(X)        (**(X))
 #define ppdec(X)        ((*(X))--)
 #define ppvalinc(X)     (*(*(X))++)
-#define ppinc(X)     	(*(X))++
+#define ppinc(X)        (*(X))++
 
 #define nextptr(X)      ((X) = cdr(X))
 #define rplaca(X,Y)     ((X)->car = (Y))
@@ -67,7 +67,7 @@
 #define funcptr(X)      ((X)->fn)
 #define largs(X)        ((X)->args)
 #define lbody(X)        ((X)->body)
-#define ival(X)        	((X)->i)
+#define ival(X)         ((X)->i)
 #define ebindings(X)    ((X)->bindings)
 
 #define consp(X)        ((X) and (X)->type is LIST)
@@ -76,7 +76,7 @@
 #define subrp(X)        ((X) and (X)->type is SUBR)
 #define fsubrp(X)       ((X) and (X)->type is FSUBR)
 #define lambdap(X)      ((X) and (X)->type is LAMBDA)
-#define intp(X)      	((X) and (X)->type is INT)
+#define intp(X)         ((X) and (X)->type is INT)
 #define nilp(X)         ((X) and (X)->type is NIL)
 #define teep(X)         ((X) and (X)->type is TEE)
 
@@ -95,10 +95,12 @@ typedef struct DIRECTIVE namestr namestr;
 typedef struct DIRECTIVE edata edata;
 typedef struct DIRECTIVE ememory ememory;
 
+typedef struct DIRECTIVE stack stack;
+
 struct DIRECTIVE node {
-    enum ltype type;
-    unsigned char mark;
     node *next;
+    enum ltype type;
+    unsigned char marked;
     union {
         namestr *name;
         struct {
@@ -123,13 +125,17 @@ struct DIRECTIVE node {
 };
 
 struct DIRECTIVE string {
-    unsigned char mark;
+    string *next;
     char s[STRINGMAX];
 };
 
 struct DIRECTIVE namestr {
-    unsigned char mark;
+    namestr *next;
     char s[NAMESTRMAX];
+};
+
+struct DIRECTIVE stack {
+    void *next;
 };
 
 struct DIRECTIVE edata {
@@ -140,6 +146,8 @@ struct DIRECTIVE edata {
     node *NULLPTR;
     node *history;
     node *freelist;
+    namestr *namefreelist;
+    string *stringfreelist;
     char code[BANKSIZE];
     string freeStringArray[FREESTRING];
     node freeNodeArray[FREEOBJECT];
@@ -161,6 +169,8 @@ node *globals;
 node *top_env;
 node *history;
 node *freelist;
+string *stringfreelist;
+namestr *namefreelist;
 
 string *freeStringArray;
 node *freeNodeArray;
@@ -171,6 +181,13 @@ int freeStringIndex = 0;
 int freeNodeIndex = 0;
 int freeNameIndex = 0;
 
+int nnodes = 0;
+int nodemem= 0 ;
+int nnames = 0;
+int namemem = 0;
+int nstrings = 0;
+int stringmem = 0;
+
 ememory *memory;
 int id;
 
@@ -179,21 +196,35 @@ int id;
 void pr(node *cell);
 void addInt(long i);
 void addString(char *s);
+void addValue(char *s, long i);
 char *scopy(char *s1, const char *s2);
 long stoi(const char *c);
 void prStats(void);
 char *readFile(char *fileName);
 void createFreelist(ememory *memory, int rows, int cols);
+void createStringFreelist(ememory *memory, int rows, int cols);
+void createNameFreelist(ememory *memory, int rows, int cols);
 int coreID(unsigned int *row, unsigned int *col);
 void coreInit(void);
 void prpair(node *l);
 void print(node *l);
 void setflag(void);
 string *smalloc(void);
+string *string_malloc(void);
+void string_free(string *n);
 namestr *nmalloc(void);
+namestr *name_malloc(void);
+void name_free(namestr *n);
 node *omalloc(void);
+node *node_malloc(void);
+void node_free(node *n);
+void pushFree(stack *ptr, stack **stk);
+stack *popFree(stack **stk);
+void mark_expr(node *o, unsigned char persistence);
+void release_node(node *o);
+void free_unmarked(node **allocated);
 node *newnode(enum ltype type);
-node *sym(char *n);
+node *sym(char *val);
 node *cons(node *head, node *tail);
 node *pair(node *head, node *tail);
 node *func(node *(*fn)(node *, node *), enum ltype type);
@@ -279,6 +310,10 @@ void addString(char *s) {
     pr(sym(s));
 }
 
+void addValue(char *s, long i) {
+    addString(s); addInt(i);
+}
+
 //
 // local version of strcpy
 //
@@ -313,18 +348,14 @@ long stoi(const char *c)
 // add memory stats to the history list
 //
 void prStats() {
-    pr(sym("id:"));
-    pr(integer(id));
-    addString("node size: ");
-    addInt(sizeof(node));
-    addString("strings allocated: ");
-    addInt(freeStringIndex);
-    addString("node allocated: ");
-    addInt(freeNodeIndex);
-    addString("names allocated: ");
-    addInt(freeNameIndex);
-    addString("memory size: ");
-    addInt(sizeof(ememory));
+    addValue("id: ", id);
+    addValue("node size: ", sizeof(node));
+    addValue("nnodes: ", nnodes);
+    addValue("nodemem: ", nodemem);
+    addValue("nnames: ", nnames);
+    addValue("namemem: ", namemem);
+    addValue("nstrings: ", nstrings);
+    addValue("stringmem: ", stringmem);
 }
 
 #if EPIPHANY
@@ -354,8 +385,10 @@ void coreInit() {
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
-    
+
     freelist = freeNodeArray;
+    stringfreelist = freeStringArray;
+    namefreelist = freeNameArray;
 
 }
 
@@ -402,18 +435,45 @@ char *readFile(char *fileName) {
 void createFreelist(ememory *memory, int rows, int cols) {
     int id, k;
     node *freeNodeArray;
-
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
-            id = (4 * i) + j;
+            id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
-                freeNodeArray[k].cdr = &freeNodeArray[k + 1];
+                freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
-                freeNodeArray[k].i = k + 1;
             }
-            freeNodeArray[FREEOBJECT - 1].cdr = NULL;
-            freeNodeArray[FREEOBJECT - 1].i = k + 1;
+            freeNodeArray[FREEOBJECT - 1].next = NULL;
+        }
+    }
+}
+
+void createStringFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    string *freeStringArray;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeStringArray = memory->data[id].freeStringArray;
+            for (k = 0; k < FREESTRING - 1; k++) {
+                freeStringArray[k].next = &freeStringArray[k + 1];
+            }
+            freeStringArray[FREESTRING - 1].next = NULL;
+        }
+    }
+}
+
+void createNameFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    namestr *freeNameArray;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeNameArray = memory->data[id].freeNameArray;
+            for (k = 0; k < FREENAME - 1; k++) {
+                freeNameArray[k].next = &freeNameArray[k + 1];
+            }
+            freeNameArray[FREENAME - 1].next = NULL;
         }
     }
 }
@@ -442,12 +502,16 @@ void coreInit(void) {
     freeNameArray = &memory->data[id].freeNameArray[0];
 
     freelist = freeNodeArray;
+    stringfreelist = freeStringArray;
+    namefreelist = freeNameArray;
 
     code = readFile("code/p2.lisp");
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
-    
+    createNameFreelist(memory, 4, 4);
+    createStringFreelist(memory, 4, 4);
+
 }
 
 //
@@ -513,40 +577,73 @@ void setflag() {
 #endif
 
 // LISP Code
-
 //
 // Structure allocation
 //
 string *smalloc(void) {
-    return &freeStringArray[freeStringIndex++];
+    if (stringfreelist != NULL)
+        return (string *)popFree((stack **)(&stringfreelist));
+    setflag();
+    return NULL;
+}
+
+string *string_malloc() {
+    stringmem += sizeof(string);
+    nstrings += 1;
+    return smalloc();
 }
 
 namestr *nmalloc(void) {
-    return &freeNameArray[freeNameIndex++];
+    if (namefreelist != NULL)
+        return (namestr *)popFree((stack **)(&namefreelist));
+    setflag();
+    return NULL;
+}
+
+namestr *name_malloc() {
+    namemem += sizeof(namestr);
+    nnames += 1;
+    return nmalloc();
 }
 
 node *omalloc(void) {
-    if (freelist == NULL) {
-        setflag();
-    }
-    freeNodeIndex++;
-    return popNode(&freelist);
+    if (freelist != NULL)
+        return (node *)popFree((stack **)(&freelist));
+    setflag();
+    return NULL;
+}
+
+node *node_malloc() {
+    nodemem += sizeof(node);
+    nnodes += 1;
+    return (node *)omalloc();
+}
+
+//
+// Return free resource
+//
+stack *popFree(stack **stk) {
+    if (*stk is NULL) return NULL;
+    stack *item = *stk;
+    *stk = (*stk)->next;
+    item->next = NULL;
+    return item;
 }
 
 //
 // node allocation
 //
 node *newnode(enum ltype type) {
-    node *n = omalloc();
-    type(n) = type;
+    node *n;
+    n = (node *) node_malloc();
+    n->type = type;
     return n;
 }
 
-node *sym (char *n) {
+node *sym(char *val) {
     node *ptr = newnode(SYM);
-    namestr *name;
-    name = nmalloc();
-    scopy(name->s, n);
+    namestr *name = name_malloc();
+    scopy(name->s, val);
     ptr->name = name;
     return ptr;
 }
@@ -657,12 +754,11 @@ char *name(node *o) {
 //
 // Symbol lookup/creation - environment creation
 //
-
-int strequal(char *s1, char *s2) {	// compare 2 strings
+int strequal(char *s1, char *s2) {  // compare 2 strings
     while (*s1 == *s2++)
         if (*s1++ == '\0')
             return (0);
-	return 1;
+    return 1;
 }
 
 node *assq(char *key, node *list) {
@@ -1057,7 +1153,6 @@ node *parse_string(char **input) {
 //
 // Eval
 //
-
 int length(node *l) {
     int n = 0;
     forlist (ptr in l)
@@ -1112,7 +1207,6 @@ node *eval(node *input, node *env) {
 //
 // REPL
 //
-
 void REPL(char *input) {
 
     init_lisp();
@@ -1126,8 +1220,8 @@ void REPL(char *input) {
         val = eval(car(sexp), top_env);
         pr(val);
     }
-}
 
+}
 
 // End of LISP Code
 
@@ -1148,7 +1242,7 @@ int main(void) {
     coreInit();
 
     //
-    // use the code for processor zero as the input
+    // load the code
     //
     input = &memory->data[id].code[0];
 

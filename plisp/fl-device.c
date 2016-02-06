@@ -28,6 +28,10 @@ void addString(char *s) {
     pr(sym(s));
 }
 
+void addValue(char *s, long i) {
+    addString(s); addInt(i);
+}
+
 //
 // local version of strcpy
 //
@@ -62,18 +66,14 @@ long stoi(const char *c)
 // add memory stats to the history list
 //
 void prStats() {
-    pr(sym("id:"));
-    pr(integer(id));
-    addString("node size: ");
-    addInt(sizeof(node));
-    addString("strings allocated: ");
-    addInt(freeStringIndex);
-    addString("node allocated: ");
-    addInt(freeNodeIndex);
-    addString("names allocated: ");
-    addInt(freeNameIndex);
-    addString("memory size: ");
-    addInt(sizeof(ememory));
+    addValue("id: ", id);
+    addValue("node size: ", sizeof(node));
+    addValue("nnodes: ", nnodes);
+    addValue("nodemem: ", nodemem);
+    addValue("nnames: ", nnames);
+    addValue("namemem: ", namemem);
+    addValue("nstrings: ", nstrings);
+    addValue("stringmem: ", stringmem);
 }
 
 #if EPIPHANY
@@ -105,6 +105,8 @@ void coreInit() {
     freeNameArray = &memory->data[id].freeNameArray[0];
 
     freelist = freeNodeArray;
+    stringfreelist = freeStringArray;
+    namefreelist = freeNameArray;
 
 }
 
@@ -151,18 +153,45 @@ char *readFile(char *fileName) {
 void createFreelist(ememory *memory, int rows, int cols) {
     int id, k;
     node *freeNodeArray;
-
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
             id = (cols * i) + j;
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
-                freeNodeArray[k].cdr = &freeNodeArray[k + 1];
+                freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
-                freeNodeArray[k].i = k + 1;
             }
-            freeNodeArray[FREEOBJECT - 1].cdr = NULL;
-            freeNodeArray[FREEOBJECT - 1].i = k + 1;
+            freeNodeArray[FREEOBJECT - 1].next = NULL;
+        }
+    }
+}
+
+void createStringFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    string *freeStringArray;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeStringArray = memory->data[id].freeStringArray;
+            for (k = 0; k < FREESTRING - 1; k++) {
+                freeStringArray[k].next = &freeStringArray[k + 1];
+            }
+            freeStringArray[FREESTRING - 1].next = NULL;
+        }
+    }
+}
+
+void createNameFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    namestr *freeNameArray;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeNameArray = memory->data[id].freeNameArray;
+            for (k = 0; k < FREENAME - 1; k++) {
+                freeNameArray[k].next = &freeNameArray[k + 1];
+            }
+            freeNameArray[FREENAME - 1].next = NULL;
         }
     }
 }
@@ -191,11 +220,15 @@ void coreInit(void) {
     freeNameArray = &memory->data[id].freeNameArray[0];
 
     freelist = freeNodeArray;
+    stringfreelist = freeStringArray;
+    namefreelist = freeNameArray;
 
     code = readFile("code/p2.lisp");
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
+    createNameFreelist(memory, 4, 4);
+    createStringFreelist(memory, 4, 4);
 
 }
 
@@ -262,9 +295,7 @@ void setflag() {
 #endif
 
 // LISP Code
-
 #include "lisp.c"
-
 // End of LISP Code
 
 //
@@ -284,7 +315,7 @@ int main(void) {
     coreInit();
 
     //
-    // use the code for processor zero as the input
+    // load the code
     //
     input = &memory->data[id].code[0];
 

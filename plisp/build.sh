@@ -23,7 +23,7 @@ case $(uname -p) in
 		;;
 esac
 
-${CROSS_PREFIX}gcc -O3 -std=gnu99 -Wno-format-security fl-host.c -o fl-host.elf -I ${EINCS} -L ${ELIBS} -le-hal  -le-loader -lpthread
+${CROSS_PREFIX}gcc -Os -std=gnu99 -Wno-format-security fl-host.c -o fl-host.elf -I ${EINCS} -L ${ELIBS} -le-hal  -le-loader -lpthread
 
 e-gcc -Os -DEPIPHANY=1 -std=gnu99 -T ${ELDF} fl-device.c -o fl-device.elf -le-lib
 

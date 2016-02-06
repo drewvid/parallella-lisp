@@ -15,7 +15,7 @@
 char *lmem;
 
 //
-// Convert a pointer from device to host
+// Convert a pointer from device and host
 //
 char *host_ptr(char *ptr) {
     unsigned int diff = ptr - (char *)0x8f000000;
@@ -56,7 +56,6 @@ char *dr_name(node *cell) {
 //
 // Access the integer value
 //
-
 long ival(node *cell) {
     long i = cell->i;
     return i;
@@ -129,10 +128,9 @@ char *readFile(char *fileName) {
 //
 // convert a pointer from host to device
 //
-
-node *device_ptr(char *base, char *ptr) {
+void *device_ptr(char *base, char *ptr) {
     unsigned int diff = ptr - base;
-    return (node *)(0x8f000000 + diff);
+    return (void *)(0x8f000000 + diff);
 }
 
 //
@@ -149,14 +147,52 @@ void createFreelist(ememory *memory, int rows, int cols) {
             freeNodeArray = memory->data[id].freeNodeArray;
             for (k = 0; k < FREEOBJECT - 1; k++) {
                 char *ptr = (char *)&freeNodeArray[k + 1];
-                freeNodeArray[k].cdr = device_ptr(base, ptr);
+                freeNodeArray[k].next = (node *)device_ptr(base, ptr);
                 freeNodeArray[k].type = FREE;
-                freeNodeArray[k].i = k + 1;
             }
-            freeNodeArray[FREEOBJECT - 1].cdr = NULL;
-            freeNodeArray[FREEOBJECT - 1].i = k + 1;
+            freeNodeArray[FREEOBJECT - 1].next = NULL;
             char *ptr = (char *)memory->data[id].freeNodeArray;
-            memory->data[id].freelist = device_ptr(base, ptr);
+            memory->data[id].freelist = (node *)device_ptr(base, ptr);
+        }
+    }
+}
+
+void createStringFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    string *freeStringArray;
+    char *base = (char *)memory;
+
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeStringArray = memory->data[id].freeStringArray;
+            for (k = 0; k < FREESTRING - 1; k++) {
+                char *ptr = (char *)&freeStringArray[k + 1];
+                freeStringArray[k].next = (string *)device_ptr(base, ptr);
+            }
+            freeStringArray[FREESTRING - 1].next = NULL;
+            char *ptr = (char *)memory->data[id].freeStringArray;
+            memory->data[id].stringfreelist = (string *)device_ptr(base, ptr);
+        }
+    }
+}
+
+void createNameFreelist(ememory *memory, int rows, int cols) {
+    int id, k;
+    namestr *freeNameArray;
+    char *base = (char *)memory;
+
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<cols; j++) {
+            id = (cols * i) + j;
+            freeNameArray = memory->data[id].freeNameArray;
+            for (k = 0; k < FREENAME - 1; k++) {
+                char *ptr = (char *)&freeNameArray[k + 1];
+                freeNameArray[k].next = (namestr *)device_ptr(base, ptr);
+            }
+            freeNameArray[FREENAME - 1].next = NULL;
+            char *ptr = (char *)memory->data[id].freeNameArray;
+            memory->data[id].namefreelist = (namestr *)device_ptr(base, ptr);
         }
     }
 }
@@ -176,6 +212,8 @@ ememory *init_ememory(int rows, int cols) {
         free(code);
     }
     createFreelist(memory, rows, cols);
+    createStringFreelist(memory, rows, cols);
+    createNameFreelist(memory, rows, cols);
     return memory;
 }
 
@@ -237,6 +275,9 @@ void process_ememory(e_mem_t *emem, ememory *memory, int rows, int cols) {
     }
 }
 
+//
+// Lets go!
+//
 int main(void) {
     int rows, cols;
     char *code, filename[64];
@@ -254,15 +295,13 @@ int main(void) {
     rows = platform.rows;
     cols = platform.cols;
 
-    //
-    // initialize the ememory data structure and freelist
-    //
     memory = init_ememory(rows, cols);
 
     //
     // open the device
     //
     e_open(&dev, 0, 0, rows, cols);
+
 
     //
     // Write the ememory data structure to device memory
@@ -274,6 +313,7 @@ int main(void) {
     //
     clear_done_flags(&dev, rows, cols);
     e_load_group("./fl-device.srec", &dev, 0, 0, rows, cols, E_TRUE);
+
 
     //
     // Poll the device waiting for all cores to finish

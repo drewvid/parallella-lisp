@@ -2,35 +2,69 @@
 // Structure allocation
 //
 string *smalloc(void) {
-    return &freeStringArray[freeStringIndex++];
+    if (stringfreelist != NULL)
+        return (string *)popFree((stack **)(&stringfreelist));
+    setflag();
+    return NULL;
+}
+
+string *string_malloc() {
+    stringmem += sizeof(string);
+    nstrings += 1;
+    return smalloc();
 }
 
 namestr *nmalloc(void) {
-    return &freeNameArray[freeNameIndex++];
+    if (namefreelist != NULL)
+        return (namestr *)popFree((stack **)(&namefreelist));
+    setflag();
+    return NULL;
+}
+
+namestr *name_malloc() {
+    namemem += sizeof(namestr);
+    nnames += 1;
+    return nmalloc();
 }
 
 node *omalloc(void) {
-    if (freelist == NULL) {
-        setflag();
-    }
-    freeNodeIndex++;
-    return popNode(&freelist);
+    if (freelist != NULL)
+        return (node *)popFree((stack **)(&freelist));
+    setflag();
+    return NULL;
+}
+
+node *node_malloc() {
+    nodemem += sizeof(node);
+    nnodes += 1;
+    return (node *)omalloc();
+}
+
+//
+// Return free resource
+//
+stack *popFree(stack **stk) {
+    if (*stk is NULL) return NULL;
+    stack *item = *stk;
+    *stk = (*stk)->next;
+    item->next = NULL;
+    return item;
 }
 
 //
 // node allocation
 //
 node *newnode(enum ltype type) {
-    node *n = omalloc();
-    type(n) = type;
+    node *n;
+    n = (node *) node_malloc();
+    n->type = type;
     return n;
 }
 
-node *sym (char *n) {
+node *sym(char *val) {
     node *ptr = newnode(SYM);
-    namestr *name;
-    name = nmalloc();
-    scopy(name->s, n);
+    namestr *name = name_malloc();
+    scopy(name->s, val);
     ptr->name = name;
     return ptr;
 }
@@ -141,12 +175,11 @@ char *name(node *o) {
 //
 // Symbol lookup/creation - environment creation
 //
-
-int strequal(char *s1, char *s2) {	// compare 2 strings
+int strequal(char *s1, char *s2) {  // compare 2 strings
     while (*s1 == *s2++)
         if (*s1++ == '\0')
             return (0);
-	return 1;
+    return 1;
 }
 
 node *assq(char *key, node *list) {
@@ -541,7 +574,6 @@ node *parse_string(char **input) {
 //
 // Eval
 //
-
 int length(node *l) {
     int n = 0;
     forlist (ptr in l)
@@ -596,7 +628,6 @@ node *eval(node *input, node *env) {
 //
 // REPL
 //
-
 void REPL(char *input) {
 
     init_lisp();
@@ -610,4 +641,5 @@ void REPL(char *input) {
         val = eval(car(sexp), top_env);
         pr(val);
     }
+
 }

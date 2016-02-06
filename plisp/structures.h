@@ -8,10 +8,12 @@ typedef struct DIRECTIVE namestr namestr;
 typedef struct DIRECTIVE edata edata;
 typedef struct DIRECTIVE ememory ememory;
 
+typedef struct DIRECTIVE stack stack;
+
 struct DIRECTIVE node {
-    enum ltype type;
-    unsigned char mark;
     node *next;
+    enum ltype type;
+    unsigned char marked;
     union {
         namestr *name;
         struct {
@@ -36,13 +38,17 @@ struct DIRECTIVE node {
 };
 
 struct DIRECTIVE string {
-    unsigned char mark;
+    string *next;
     char s[STRINGMAX];
 };
 
 struct DIRECTIVE namestr {
-    unsigned char mark;
+    namestr *next;
     char s[NAMESTRMAX];
+};
+
+struct DIRECTIVE stack {
+    void *next;
 };
 
 struct DIRECTIVE edata {
@@ -53,6 +59,8 @@ struct DIRECTIVE edata {
     node *NULLPTR;
     node *history;
     node *freelist;
+    namestr *namefreelist;
+    string *stringfreelist;
     char code[BANKSIZE];
     string freeStringArray[FREESTRING];
     node freeNodeArray[FREEOBJECT];
