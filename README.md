@@ -53,6 +53,8 @@ Two versions of lisp will be built which can be run by typing:
      ./fl
      ./onefile
 
+## LISP Primitives
+
 Parallella-lisp includes the 10 primitives suggested by John McCarthy which are:
 
     atom
@@ -86,6 +88,8 @@ In addition the following primitives have been included on top of the original 1
     /
     *
     =
+
+## Generating the code for each core and examples
 
 The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP. The files generated are named p0.lisp to p15.lisp. If you want to change the filenames then you will have to edit fl-device.c and recompile.
 
