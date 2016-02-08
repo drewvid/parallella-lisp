@@ -34,6 +34,8 @@ More functionality is slowly being added as space permits.
 
 The version with gc is in the directory plisp-gc. The lastest version without garbage collection is in the directory plisp. The original version is in the directory plisp-initial.
 
+## Building
+
 All versions were compiled and tested with esdk.2015.1. To build LISP for the parallella in either of the above mentioned directories type:
 
       make build
