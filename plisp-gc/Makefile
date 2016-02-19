@@ -16,7 +16,6 @@ fl: force
 	gcc -Os -std=gnu99 -o fl fl-device.c
 
 onefile: force
-	python onefile.py
 	gcc -Os -std=gnu99 -o onefile onefile.c
 	wc -l onefile.c
 
