@@ -1,2 +1,5 @@
-(define a 1)
-a
+(defun test (x y)
+    (* x y)
+)
+
+(test 3 3)

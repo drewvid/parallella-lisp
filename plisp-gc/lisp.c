@@ -239,11 +239,11 @@ char *name(node *o) {
 //
 // Symbol lookup/creation - environment creation
 //
-int strequal(char *s1, char *s2) {	// compare 2 strings
+int strequal(char *s1, char *s2) {  // compare 2 strings
     while (*s1 == *s2++)
         if (*s1++ == '\0')
             return (0);
-	return 1;
+    return 1;
 }
 
 node *assq(char *key, node *list) {
@@ -477,6 +477,18 @@ node *el_divide(node *args, node *env) {
     return binary(args, '/');
 }
 
+node *el_defun(node *args, node *env) {
+    node *name1 = nextarg(&args), *val;
+    node *lambda_args = nextarg(&args);
+    node *lam = lambda(lambda_args, nextarg(&args));
+    node *def = assq(name(name1), globals);
+    if(not nullp(def))
+        cdr(def) = lam;
+    else
+        add_pair(name1, lam, &globals);
+    return lam;
+}
+
 //
 // init
 //
@@ -505,6 +517,7 @@ void init_lisp() {
     add_pair(sym("label"),      func(&el_label, FSUBR), &globals);
     add_pair(sym("define"),     func(&el_label, FSUBR), &globals);
     add_pair(sym("ldefine"),    func(&el_ldefine, FSUBR), &globals);
+    add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
     add_pair(sym("print"),      func(&el_print, SUBR), &globals);
     add_pair(sym("terpri"),     func(&el_terpri, FSUBR), &globals);
     add_pair(sym("<"),          func(&el_lessthan, SUBR), &globals);
@@ -591,7 +604,7 @@ int is_valid_int( char *str) {
 node *makeNode(node *n) {
     if (n->type is SYM) {
         char *name = n->name->s;
-        if (is_valid_int(name)) 
+        if (is_valid_int(name))
             return integer(stoi(name));
     }
     return n;

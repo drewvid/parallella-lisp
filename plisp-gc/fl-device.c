@@ -224,9 +224,9 @@ void coreInit(int argc, char *argv[]) {
     namefreelist = freeNameArray;
 
     if (argc == 2)
-    	code = readFile(argv[1]);
+        code = readFile(argv[1]);
     else
-    	code = readFile("testfuncs.lisp");
+        code = readFile("testfuncs.lisp");
 
     scopy(memory->data[id].code, code);
 
@@ -239,6 +239,11 @@ void coreInit(int argc, char *argv[]) {
 //
 // Printing routines
 //
+
+void nl(void) {
+    printf("\n");
+}
+
 void prpair(node *l) {
     printf("%s", "(");
     print(car(l));
