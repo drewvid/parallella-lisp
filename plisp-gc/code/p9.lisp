@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nth '(1 2 3 4 5) 1)
-(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(nthcdr '(1 2 3 4 5) 2)
-(reverse '(1 2 3 4 5 6 7))
-(last '(1 2 3 4))
-(copy-list '(a b c d e f g))
+(intersect '(a b c d e f) '(d e f))
+(member 'me '(please remove me))
+
+(rember 'me '(please remove me))
+(filter numberp '(1 2 3 a b c 4 5 6))
+(list-ref '(1 2 3 4) 1)

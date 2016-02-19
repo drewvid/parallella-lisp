@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
+(rember 'me '(please remove me))
 (filter numberp '(1 2 3 a b c 4 5 6))
-(nthcdr '(1 2 3 4 5) 2)
-(nfibs 10)
-(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(subst 'me 'you '(a list with me))
 
+(nth '(1 2 3 4 5) 1)
+(nthcdr '(1 2 3 4 5) 2)
+(reverse2 '(1 2 3 4 5 6 7 8 9))

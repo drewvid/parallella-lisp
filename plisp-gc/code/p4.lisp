@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nth '(1 2 3 4 5) 1)
-(reverse '(1 2 3 4 5 6 7))
-(multiins 'one 'two '(one three one three one three one three))
-(filter numberp '(1 2 3 a b c 4 5 6))
+(copy-tree '((a b c d) (e f g) h i j))
 (assoc 'five '((one two) (three four) (five six) (seven eight)))
-(reverse2 '(1 2 3 4 5 6 7 8 9))
+(rember 'me '(please remove me))
+(copy-list '(a b c d e f g))
+
+(last '(1 2 3 4))

@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(reverse '(1 2 3 4 5 6 7))
-(copy-list '(a b c d e f g))
-(subst 'me 'you '(a list with me))
-(member 'me '(please remove me))
-(length '(0 1 2 3 4 5 6 7 8 9))
-(last '(1 2 3 4))
+(mapcar 'atom (list 1 '(2) foo t nil))
+(nth '(1 2 3 4 5) 1)
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+(intersect '(a b c d e f) '(d e f))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+

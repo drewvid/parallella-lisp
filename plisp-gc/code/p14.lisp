@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-
-(nth '(1 2 3 4 5) 1)
-(mapcar 'atom (list 1 '(2) foo t nil))
-(nthcdr '(1 2 3 4 5) 2)
+(copy-list '(a b c d e f g))
 (multiins 'one 'two '(one three one three one three one three))
 (copy-tree '((a b c d) (e f g) h i j))
+(list-ref '(1 2 3 4) 1)
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+(subst 'me 'you '(a list with me))

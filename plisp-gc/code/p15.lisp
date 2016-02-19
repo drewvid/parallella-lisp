@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
+(copy-list '(a b c d e f g))
+(mapcar 'atom (list 1 '(2) foo t nil))
+(rember 'me '(please remove me))
+(multiins 'one 'two '(one three one three one three one three))
+(reverse '(1 2 3 4 5 6 7))
 (length '(0 1 2 3 4 5 6 7 8 9))
-(subst 'me 'you '(a list with me))
-
-(filter numberp '(1 2 3 a b c 4 5 6))
-(member 'me '(please remove me))
-(intersect '(a b c d e f) '(d e f))
