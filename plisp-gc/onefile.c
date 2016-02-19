@@ -887,25 +887,6 @@ node *el_cons (node *args, node *env) {
     return cons(head, tail);
 }
 
-node *el_equal (node *args, node *env) {
-    node *first = nextarg(&args);
-    node *second = nextarg(&args);
-    if (symp(first) and symp(second))
-        return strequal(name(first), name(second)) is 0? tee : nil;
-    else
-        return nil;
-}
-
-node *el_atom (node *args, node *env) {
-    node *res = tee;
-    while (args isnt NULLPTR and consp(args)) {
-        if (not symp(car(args)))
-            res = nil;
-        args = cdr(args);
-    }
-    return res;
-}
-
 node *el_cond(node *args, node *env) {
     forlist (ptr in args)
         if (not nilp(eval(caar(ptr), env)))
@@ -1066,6 +1047,39 @@ node *el_divide(node *args, node *env) {
     return binary(args, '/');
 }
 
+//
+// New and modified primitives
+//
+node *el_atom (node *args, node *env) {
+    node *res = tee, *head;
+    while (args isnt NULLPTR and consp(args)) {
+        head = car(args);
+        if (not (nilp(head) || teep(head) || intp(head) || symp(head)))
+            res = nil;
+        args = cdr(args);
+    }
+    return res;
+}
+
+node *el_equal (node *args, node *env) {
+    node *first = nextarg(&args);
+    node *second = nextarg(&args);
+    if (symp(first) and symp(second))
+        return strequal(name(first), name(second)) is 0? tee : nil;
+    else if (intp(first) and intp(second))
+        return ival(first) == ival(second) ? tee : nil;
+    else
+        return nil;
+}
+
+node *el_lessthanequal(node *args, node *env) {
+    return compare(args, 'l');
+}
+
+node *el_greaterthanequal(node *args, node *env) {
+    return compare(args, 'g');
+}
+
 node *el_defun(node *args, node *env) {
     node *name1 = nextarg(&args), *val;
     node *lambda_args = nextarg(&args);
@@ -1076,6 +1090,74 @@ node *el_defun(node *args, node *env) {
     else
         add_pair(name1, lam, &globals);
     return lam;
+}
+
+node *el_consp (node *args, node *env) {
+    node *val = nextarg(&args);
+    return consp(val) ? tee : nil;
+}
+
+node *el_funcall(node *args, node *env) {
+    node *funcname = eval(nextarg(&args), env);
+    node *funcargs = eval(nextarg(&args), env);
+    return eval(cons(funcname, cons(funcargs, NULLPTR)), env);
+}
+
+node *el_zerop(node *args, node *env) {
+    node *val = nextarg(&args);
+    return ival(val) == 0 ? tee : nil;
+}
+
+node *el_sub1(node *args, node *env) {
+    node *val = nextarg(&args);
+    return integer(ival(val) - 1);
+}
+
+node *el_add1(node *args, node *env) {
+    node *val = nextarg(&args);
+    return integer(ival(val) + 1);
+}
+
+node *el_numberp(node *args, node *env) {
+    node *val = nextarg(&args);
+    return intp(val) ? tee : nil;
+}
+
+node *el_or(node *args, node *env) {
+    forlist (item in args) {
+        node *val =  eval(car(item), env);
+        if (teep(val))
+            return tee;
+    }
+    return nil;
+}
+
+node *el_and(node *args, node *env) {
+    forlist (item in args) {
+        node *val =  eval(car(item), env);
+        if (!teep(val))
+            return nil;
+    }
+    return tee;
+}
+
+node *el_not(node *args, node *env) {
+    node *val = nextarg(&args);
+
+    if (nilp(val))
+        return tee;
+    if (intp(val)) {
+        if(ival(val) != 0)
+            return tee;
+    }
+
+    return nil;
+}
+
+node *el_setflag(node *args, node *env) {
+    pr(args);
+    setflag();
+    return nil;
 }
 
 //
@@ -1116,6 +1198,25 @@ void init_lisp() {
     add_pair(sym("/"),          func(&el_divide, SUBR), &globals);
     add_pair(sym("*"),          func(&el_times, SUBR), &globals);
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
+// new primitives
+    add_pair(sym("<="),         func(&el_lessthanequal, SUBR), &globals);
+    add_pair(sym(">="),         func(&el_greaterthanequal, SUBR), &globals);
+    add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
+    add_pair(sym("funcall"),    func(&el_funcall, FSUBR), &globals);
+    add_pair(sym("null"),       func(&el_nilp, SUBR), &globals);
+    add_pair(sym("consp"),      func(&el_consp, SUBR), &globals);
+    add_pair(sym("times"),      func(&el_times, SUBR), &globals);
+    add_pair(sym("zerop"),      func(&el_zerop, SUBR), &globals);
+    add_pair(sym("greaterp"),   func(&el_greaterthan, SUBR), &globals);
+    add_pair(sym("lessp"),      func(&el_lessthan, SUBR), &globals);
+    add_pair(sym("sub1"),       func(&el_sub1, SUBR), &globals);
+    add_pair(sym("add1"),       func(&el_add1, SUBR), &globals);
+    add_pair(sym("numberp"),    func(&el_numberp, SUBR), &globals);
+    add_pair(sym("eq"),         func(&el_equal, SUBR), &globals);
+    add_pair(sym("and"),        func(&el_and, SUBR), &globals);
+    add_pair(sym("or"),         func(&el_or, SUBR), &globals);
+    add_pair(sym("not"),        func(&el_not, SUBR), &globals);
+    add_pair(sym("setflag"),    func(&el_setflag, SUBR), &globals);
     nil = newnode(NIL);
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
@@ -1313,7 +1414,6 @@ void REPL(char *input) {
         val = eval(car(sexp), top_env);
         pr(val);
         mark_expr(globals, PERMANENT);
-        mark_expr(val, PERMANENT);
         mark_expr(history, PERMANENT);
         free_unmarked(&allocated);
     }
