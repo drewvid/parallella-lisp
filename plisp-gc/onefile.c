@@ -206,7 +206,7 @@ void createFreelist(ememory *memory, int rows, int cols);
 void createStringFreelist(ememory *memory, int rows, int cols);
 void createNameFreelist(ememory *memory, int rows, int cols);
 int coreID(unsigned int *row, unsigned int *col);
-void coreInit(void);
+void coreInit(int argc, char *argv[]);
 void prpair(node *l);
 void print(node *l);
 void setflag(void);
@@ -291,7 +291,7 @@ node *evsym(node *exp, node *env);
 node *eval_list(node *sexp, node *env);
 node *eval(node *input, node *env);
 void REPL(char *input);
-int main(void);
+int main(int argc, char *argv[]);
 
 
 #define BUF_ADDRESS 0x8f000000
@@ -379,7 +379,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initilaize core memory
 //
-void coreInit() {
+void coreInit(int argc, char *argv[]) {
 
     memory = (ememory *)(BUF_ADDRESS);
 
@@ -493,7 +493,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initialize globals
 //
-void coreInit(void) {
+void coreInit(int argc, char *argv[]) {
     char *code;
 
     memory = (ememory *)malloc(sizeof(ememory));
@@ -506,7 +506,11 @@ void coreInit(void) {
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
 
-    code = readFile("code/p2.lisp");
+    if (argc == 2)
+    	code = readFile(argv[1]);
+    else
+    	code = readFile("testfuncs.lisp");
+
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
@@ -663,7 +667,8 @@ void mark_expr(node *o, unsigned char persistence) {
         if (not nullp(o)) mark_expr(o->args, persistence);
         if (not nullp(o)) mark_expr(o->body, persistence);
     }
-    o->marked = persistence;
+    if (o->marked <= 1)
+        o->marked = persistence;
     return;
 }
 
@@ -1302,7 +1307,7 @@ void REPL(char *input) {
 //
 // test on the host - simulate the info for a single core
 //
-int main(void) {
+int main(int argc, char *argv[]) {
     unsigned int row, col;
 
     //
@@ -1313,10 +1318,10 @@ int main(void) {
     //
     // Initialize the core
     //
-    coreInit();
+    coreInit(argc, argv);
 
     //
-    // use the code for processor zero as the input
+    // load the code
     //
     input = &memory->data[id].code[0];
 

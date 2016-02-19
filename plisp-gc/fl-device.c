@@ -96,7 +96,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initilaize core memory
 //
-void coreInit() {
+void coreInit(int argc, char *argv[]) {
 
     memory = (ememory *)(BUF_ADDRESS);
 
@@ -210,7 +210,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initialize globals
 //
-void coreInit(void) {
+void coreInit(int argc, char *argv[]) {
     char *code;
 
     memory = (ememory *)malloc(sizeof(ememory));
@@ -223,7 +223,11 @@ void coreInit(void) {
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
 
-    code = readFile("code/p2.lisp");
+    if (argc == 2)
+    	code = readFile(argv[1]);
+    else
+    	code = readFile("testfuncs.lisp");
+
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
@@ -301,7 +305,7 @@ void setflag() {
 //
 // test on the host - simulate the info for a single core
 //
-int main(void) {
+int main(int argc, char *argv[]) {
     unsigned int row, col;
 
     //
@@ -312,7 +316,7 @@ int main(void) {
     //
     // Initialize the core
     //
-    coreInit();
+    coreInit(argc, argv);
 
     //
     // load the code
