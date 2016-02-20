@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nfibs 10)
-(pow 2 3)
 (mapcar 'atom (list 1 '(2) foo t nil))
-(nthcdr '(1 2 3 4 5) 2)
-(rember 'me '(please remove me))
-(sum-to-n 101)
+(copy-tree '((a b c d) (e f g) h i j))
+(sum-to-n 100)
+
 (last '(1 2 3 4))
 
+(any numberp '(1 a))
 (list-ref '(1 2 3 4) 1)
-
+(intersect '(a b c d e f) '(d e f))
+(rember 'me '(please remove me))

@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(intersect '(a b c d e f) '(d e f))
-(any numberp '(1 a))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-
-(testfun 100)
-(every numberp '(1 a))
-(rember 'me '(please remove me))
-(gauss 100)
+(copy-tree '((a b c d) (e f g) h i j))
 (length '(0 1 2 3 4 5 6 7 8 9))
-(every numberp '(1 2))
+(intersect '(a b c d e f) '(d e f))
+(testfun 101)
+(any numberp '(a b))
+(list-ref '(1 2 3 4) 1)
+(pow 234 0)
+(testfun 13)
+(rember 'me '(please remove me))
+

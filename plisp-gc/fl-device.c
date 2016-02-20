@@ -67,6 +67,7 @@ long stoi(const char *c)
 //
 void prStats() {
     addValue("id: ", id);
+    addValue("memory: ", sizeof(ememory));
     addValue("node size: ", sizeof(node));
     addValue("nnodes: ", nnodes);
     addValue("nodemem: ", nodemem);
@@ -117,7 +118,8 @@ void coreInit(int argc, char *argv[]) {
 void setflag() {
     unsigned *d;
 
-    prStats();
+    if(nnodes < FREEOBJECT && nnames < FREENAME)
+        prStats();
 
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
@@ -291,11 +293,17 @@ void print(node *l) {
 //
 void setflag() {
 
-    prStats();
-
-    forlist (ptr in history) {
-        print(car(ptr));
-        printf("\n");
+    if(nnodes < FREEOBJECT && nnames < FREENAME) {
+        prStats();
+        forlist (ptr in history) {
+            print(car(ptr));
+            printf("\n");
+        }
+    } else {
+        printf("OUT OF MEMORY\n");
+        printf("nnodes %d\n", nnodes);
+        printf("nnames %d\n", nnames);
+        printf("nstrings %d\n", nstrings);
     }
 
     exit(0);
