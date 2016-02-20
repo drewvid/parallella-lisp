@@ -51,7 +51,7 @@ Both onefile and fl can now be called with a filename. If no filename is given t
 
     ./fl code/p2.lisp
 
-Adding more tests to testsfuncs.lisp is not a good idea because there is a chance you will run out of memory. 
+Adding more tests to testfuncs.lisp is not a good idea because there is a chance you will run out of memory. 
 
 ## LISP Primitives
 
