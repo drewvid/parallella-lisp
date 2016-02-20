@@ -28,7 +28,7 @@ In the two latest versions of Parallella-lisp, released in early Feb 2016, the p
 
 More functionality is slowly being added as space permits.
 
-## Building
+## Building and Running
 
 The version with gc is in the directory plisp-gc. The lastest version without garbage collection is in the directory plisp. The original version is in the directory plisp-initial. All versions were compiled and tested with esdk.2015.1. To build LISP for the parallella in either of the above mentioned directories type:
 
@@ -50,6 +50,8 @@ Two versions of lisp will be built which can be run by typing:
 Both onefile and fl can now be called with a filename. If no filename is given testfuncs.lisp will be interpreted. For instance, to interpret the code that will run on core 3 type in:
 
     ./fl code/p2.lisp
+
+Adding more tests to testsfuncs.lisp is not a good idea because there is a chance you will run out of memory. 
 
 ## LISP Primitives
 
