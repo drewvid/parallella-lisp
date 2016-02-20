@@ -630,8 +630,8 @@ void init_lisp() {
     add_pair(sym("add1"),       func(&el_add1, SUBR), &globals);
     add_pair(sym("numberp"),    func(&el_numberp, SUBR), &globals);
     add_pair(sym("eq"),         func(&el_equal, SUBR), &globals);
-    add_pair(sym("and"),        func(&el_and, SUBR), &globals);
-    add_pair(sym("or"),         func(&el_or, SUBR), &globals);
+    add_pair(sym("and"),        func(&el_and, FSUBR), &globals);
+    add_pair(sym("or"),         func(&el_or, FSUBR), &globals);
     add_pair(sym("not"),        func(&el_not, SUBR), &globals);
     add_pair(sym("setflag"),    func(&el_setflag, SUBR), &globals);
     nil = newnode(NIL);

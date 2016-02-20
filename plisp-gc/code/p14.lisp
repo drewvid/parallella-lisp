@@ -53,6 +53,20 @@
 (defun mycar (x) (car x))
 (defun mycdr (x) (cdr x))
 
+(defun pow (n1 n2)
+        (cond ((zerop n2) 1)
+            (t (times n1 (pow n1 (sub1 n2))))
+        )
+)
+
+(defun double (n) (times n 2))
+(defun square (n) (times n n))
+(defun testfun (n)
+        (funcall (cond ((greaterp n 100) 'double)
+            (t 'square) )
+        n)
+)
+
 (defun subst (old new lat)
         (cond ((null lat) ())
             ((eq (car lat) old) (cons new (cdr lat)))
@@ -73,6 +87,12 @@
         )
 )
 
+(defun factorial (n)
+        (cond ((= n 1) 1)
+            (t (* n (factorial (- n 1))))
+        )
+)
+
 (defun rem (x d)
     (- x (* (/ x d) d)))
 
@@ -85,6 +105,36 @@
     (if (is-even x)
         nil
       t))
+
+(defun is-divisible (x y)
+    (if (= y 1)
+        nil
+      (if (>= y x)
+          nil
+        (if (= 0 (rem x y))
+            t
+          nil))))
+
+(defun is-prime (x)
+    (if (is-even x)
+        nil
+      (is-prime-rec x 1)))
+
+(defun is-prime-rec
+  (x y)
+    (if (is-divisible x y)
+        nil
+      (if (>= y x)
+          t
+        (is-prime-rec x (+ 2 y)))))
+
+(defun gcd (x y)
+       (cond
+        ((= y 0) x)
+        (t (gcd y (rem x y)))))
+
+(defun lcm (x y)
+       (/ (abs (* x y)) (gcd x y)))
 
 (defun nth (lis n)
         (if (= n 0)
@@ -111,6 +161,14 @@
   (cond ((atom lst) ())
         ((eq (caar lst) item) (car lst))
         (t (assoc item (cdr lst)))))
+
+(defun sum-to-n (n)
+       (cond
+        ((< n 0) 0)
+        (t (+ n (sum-to-n (- n 1))))))
+
+(defun gauss (n)
+       (/ (* n (+ n 1)) 2))
 
 (defun abs (x) (if (< x 0) (- 0 x) x))
 
@@ -154,9 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(last '(1 2 3 4))
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(mapcar 'atom (list 1 '(2) foo t nil))
-(append2 '(1 2 3 4) '(5 6 7 8 9))
-(rember 'me '(please remove me))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
+
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+(any numberp '(1 a))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(any numberp '(a b))
+(testfun 13)
+(copy-tree '((a b c d) (e f g) h i j))
+(reverse '(1 2 3 4 5 6 7))
+(filter numberp '(1 2 3 a b c 4 5 6))
+(pow 234 0)

@@ -55,6 +55,20 @@ setup="""
 (defun mycar (x) (car x))
 (defun mycdr (x) (cdr x))
 
+(defun pow (n1 n2)
+        (cond ((zerop n2) 1)
+            (t (times n1 (pow n1 (sub1 n2))))
+        )
+)
+
+(defun double (n) (times n 2))
+(defun square (n) (times n n))
+(defun testfun (n)
+        (funcall (cond ((greaterp n 100) 'double)
+            (t 'square) )
+        n)
+)
+
 (defun subst (old new lat)
         (cond ((null lat) ())
             ((eq (car lat) old) (cons new (cdr lat)))
@@ -75,6 +89,12 @@ setup="""
         )
 )
 
+(defun factorial (n)
+        (cond ((= n 1) 1)
+            (t (* n (factorial (- n 1))))
+        )
+)
+
 (defun rem (x d)
     (- x (* (/ x d) d)))
 
@@ -87,6 +107,36 @@ setup="""
     (if (is-even x)
         nil
       t))
+
+(defun is-divisible (x y)
+    (if (= y 1)
+        nil
+      (if (>= y x)
+          nil
+        (if (= 0 (rem x y))
+            t
+          nil))))
+
+(defun is-prime (x)
+    (if (is-even x)
+        nil
+      (is-prime-rec x 1)))
+
+(defun is-prime-rec
+  (x y)
+    (if (is-divisible x y)
+        nil
+      (if (>= y x)
+          t
+        (is-prime-rec x (+ 2 y)))))
+
+(defun gcd (x y)
+       (cond
+        ((= y 0) x)
+        (t (gcd y (rem x y)))))
+
+(defun lcm (x y)
+       (/ (abs (* x y)) (gcd x y)))
 
 (defun nth (lis n)
         (if (= n 0)
@@ -113,6 +163,14 @@ setup="""
   (cond ((atom lst) ())
         ((eq (caar lst) item) (car lst))
         (t (assoc item (cdr lst)))))
+
+(defun sum-to-n (n)
+       (cond
+        ((< n 0) 0)
+        (t (+ n (sum-to-n (- n 1))))))
+
+(defun gauss (n)
+       (/ (* n (+ n 1)) 2))
 
 (defun abs (x) (if (< x 0) (- 0 x) x))
 
@@ -158,7 +216,13 @@ setup="""
 """
 
 code = """
+(pow 2 3)
+(pow 234 0)
 (nfibs 10)
+(testfun 13)
+(testfun 100)
+(sum-to-n 100)
+(gauss 100)
 (rember 'me '(please remove me))
 (multiins 'one 'two '(one three one three one three one three))
 (member 'me '(please remove me))
@@ -167,6 +231,7 @@ code = """
 (subst 'me 'you '(a list with me))
 (mapcar 'atom (list 1 '(2) foo t nil))
 (mapcar  'mycar '( (1 2) (3 4) (5 6)))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
 (reverse '(1 2 3 4 5 6 7))
 (nth '(1 2 3 4 5) 1)
 (nthcdr '(1 2 3 4 5) 2)
@@ -178,6 +243,10 @@ code = """
 (append2 '(1 2 3 4) '(5 6 7 8 9))
 (copy-list '(a b c d e f g))
 (copy-tree '((a b c d) (e f g) h i j))
+(any numberp '(1 a))
+(any numberp '(a b))
+(every numberp '(1 2))
+(every numberp '(1 a))
 """
 
 if __name__ == '__main__':
@@ -185,7 +254,7 @@ if __name__ == '__main__':
     lines = code.split("\n");
 
     for i in range(16):
-        sample = random.sample(lines, 6)
+        sample = random.sample(lines, 10)
         fp = open("p" + str(i) + ".lisp", "w")
         fp.write(setup + "\n")
         for line in sample:

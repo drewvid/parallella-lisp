@@ -254,3 +254,7 @@
 (copy-tree '((a b c d) (e f g) h i j))
 (and (consp l) (or (f (car l)) nil))
 (apply f l)
+(any numberp '(1 a))
+(any numberp '(a b))
+(every numberp '(1 2))
+(every numberp '(1 a))
