@@ -1,7 +1,3 @@
-int callmax = 30000;
-
-int ncalls = 0;
-
 node *tee;
 node *nil;
 node *NULLPTR;

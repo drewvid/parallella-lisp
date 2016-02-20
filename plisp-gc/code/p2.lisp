@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(copy-tree '((a b c d) (e f g) h i j))
+(every numberp '(1 2))
 (length '(0 1 2 3 4 5 6 7 8 9))
-(intersect '(a b c d e f) '(d e f))
-(testfun 101)
-(any numberp '(a b))
-(list-ref '(1 2 3 4) 1)
-(pow 234 0)
-(testfun 13)
-(rember 'me '(please remove me))
 
+(copy-list '(a b c d e f g))
+(last '(1 2 3 4))
+(testfun 13)
+(append2 '(1 2 3 4) '(5 6 7 8 9))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+
+(copy-tree '((a b c d) (e f g) h i j))

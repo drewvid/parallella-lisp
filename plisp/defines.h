@@ -4,8 +4,8 @@
 #define DIRECTIVE
 #endif
 
-#define TRUE    1
-#define FALSE   0
+#define	TRUE	1
+#define	FALSE	0
 
 #define NCORES 16
 #define BANKSIZE 8192
@@ -36,7 +36,7 @@
 #define forheap(...) forlist_xp(forheap_in, (__VA_ARGS__))
 #define forheap_in(X, S) for(node *X = S; X isnt NULLPTR; X = next(X))
 
-#define PERMANENT       2
+#define PERMANENT 		2
 
 #define EOS             '\0'
 #define EOSP(X)         ((X) is EOS)
@@ -45,7 +45,7 @@
 #define ppval(X)        (**(X))
 #define ppdec(X)        ((*(X))--)
 #define ppvalinc(X)     (*(*(X))++)
-#define ppinc(X)        (*(X))++
+#define ppinc(X)     	(*(X))++
 
 #define nextptr(X)      ((X) = cdr(X))
 #define rplaca(X,Y)     ((X)->car = (Y))
@@ -57,7 +57,7 @@
 #define funcptr(X)      ((X)->fn)
 #define largs(X)        ((X)->args)
 #define lbody(X)        ((X)->body)
-#define ival(X)         ((X)->i)
+#define ival(X)        	((X)->i)
 #define ebindings(X)    ((X)->bindings)
 
 #define consp(X)        ((X) and (X)->type is LIST)
@@ -66,7 +66,7 @@
 #define subrp(X)        ((X) and (X)->type is SUBR)
 #define fsubrp(X)       ((X) and (X)->type is FSUBR)
 #define lambdap(X)      ((X) and (X)->type is LAMBDA)
-#define intp(X)         ((X) and (X)->type is INT)
+#define intp(X)      	((X) and (X)->type is INT)
 #define nilp(X)         ((X) and (X)->type is NIL)
 #define teep(X)         ((X) and (X)->type is TEE)
 

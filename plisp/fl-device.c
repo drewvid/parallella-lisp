@@ -67,6 +67,7 @@ long stoi(const char *c)
 //
 void prStats() {
     addValue("id: ", id);
+    addValue("memory: ", sizeof(ememory));
     addValue("node size: ", sizeof(node));
     addValue("nnodes: ", nnodes);
     addValue("nodemem: ", nodemem);
@@ -96,7 +97,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initilaize core memory
 //
-void coreInit() {
+void coreInit(int argc, char *argv[]) {
 
     memory = (ememory *)(BUF_ADDRESS);
 
@@ -117,7 +118,8 @@ void coreInit() {
 void setflag() {
     unsigned *d;
 
-    prStats();
+    if(nnodes < FREEOBJECT && nnames < FREENAME)
+        prStats();
 
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
@@ -210,7 +212,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initialize globals
 //
-void coreInit(void) {
+void coreInit(int argc, char *argv[]) {
     char *code;
 
     memory = (ememory *)malloc(sizeof(ememory));
@@ -223,7 +225,11 @@ void coreInit(void) {
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
 
-    code = readFile("code/p2.lisp");
+    if (argc == 2)
+        code = readFile(argv[1]);
+    else
+        code = readFile("code/p2.lisp");
+
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
@@ -235,6 +241,11 @@ void coreInit(void) {
 //
 // Printing routines
 //
+
+void nl(void) {
+    printf("\n");
+}
+
 void prpair(node *l) {
     printf("%s", "(");
     print(car(l));
@@ -282,11 +293,17 @@ void print(node *l) {
 //
 void setflag() {
 
-    prStats();
-
-    forlist (ptr in history) {
-        print(car(ptr));
-        printf("\n");
+    if(nnodes < FREEOBJECT && nnames < FREENAME) {
+        prStats();
+        forlist (ptr in history) {
+            print(car(ptr));
+            printf("\n");
+        }
+    } else {
+        printf("OUT OF MEMORY\n");
+        printf("nnodes %d\n", nnodes);
+        printf("nnames %d\n", nnames);
+        printf("nstrings %d\n", nstrings);
     }
 
     exit(0);
@@ -301,7 +318,7 @@ void setflag() {
 //
 // test on the host - simulate the info for a single core
 //
-int main(void) {
+int main(int argc, char *argv[]) {
     unsigned int row, col;
 
     //
@@ -312,7 +329,7 @@ int main(void) {
     //
     // Initialize the core
     //
-    coreInit();
+    coreInit(argc, argv);
 
     //
     // load the code

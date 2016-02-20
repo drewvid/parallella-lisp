@@ -1,7 +1,3 @@
-int callmax = 30000;
-
-int ncalls = 0;
-
 node *tee;
 node *nil;
 node *NULLPTR;
@@ -11,6 +7,7 @@ node *history;
 node *freelist;
 string *stringfreelist;
 namestr *namefreelist;
+node *allocated;
 
 string *freeStringArray;
 node *freeNodeArray;

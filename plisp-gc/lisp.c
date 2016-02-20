@@ -770,10 +770,8 @@ int length(node *l) {
 
 node *evlambda(node *vals, node *expr, node *env) {
     node *args = largs(expr), *res = nil;
-    if (length(args) is length(vals)) {
-        ncalls += 1;
+    if (length(args) is length(vals))
         res = eval(lbody(expr), make_env(args, vals, env));
-    }
     return res ;
 }
 
@@ -803,7 +801,7 @@ node *eval_list(node *sexp, node *env) {
 }
 
 node *eval(node *input, node *env) {
-    if (nullp(input) or ncalls > callmax)
+    if (nullp(input))
         setflag();
     if (consp(input))
         input = eval_list(input, env);

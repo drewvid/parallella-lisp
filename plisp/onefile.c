@@ -14,8 +14,8 @@
 #define DIRECTIVE
 #endif
 
-#define TRUE    1
-#define FALSE   0
+#define	TRUE	1
+#define	FALSE	0
 
 #define NCORES 16
 #define BANKSIZE 8192
@@ -46,7 +46,7 @@
 #define forheap(...) forlist_xp(forheap_in, (__VA_ARGS__))
 #define forheap_in(X, S) for(node *X = S; X isnt NULLPTR; X = next(X))
 
-#define PERMANENT       2
+#define PERMANENT 		2
 
 #define EOS             '\0'
 #define EOSP(X)         ((X) is EOS)
@@ -55,7 +55,7 @@
 #define ppval(X)        (**(X))
 #define ppdec(X)        ((*(X))--)
 #define ppvalinc(X)     (*(*(X))++)
-#define ppinc(X)        (*(X))++
+#define ppinc(X)     	(*(X))++
 
 #define nextptr(X)      ((X) = cdr(X))
 #define rplaca(X,Y)     ((X)->car = (Y))
@@ -67,7 +67,7 @@
 #define funcptr(X)      ((X)->fn)
 #define largs(X)        ((X)->args)
 #define lbody(X)        ((X)->body)
-#define ival(X)         ((X)->i)
+#define ival(X)        	((X)->i)
 #define ebindings(X)    ((X)->bindings)
 
 #define consp(X)        ((X) and (X)->type is LIST)
@@ -76,7 +76,7 @@
 #define subrp(X)        ((X) and (X)->type is SUBR)
 #define fsubrp(X)       ((X) and (X)->type is FSUBR)
 #define lambdap(X)      ((X) and (X)->type is LAMBDA)
-#define intp(X)         ((X) and (X)->type is INT)
+#define intp(X)      	((X) and (X)->type is INT)
 #define nilp(X)         ((X) and (X)->type is NIL)
 #define teep(X)         ((X) and (X)->type is TEE)
 
@@ -171,6 +171,7 @@ node *history;
 node *freelist;
 string *stringfreelist;
 namestr *namefreelist;
+node *allocated;
 
 string *freeStringArray;
 node *freeNodeArray;
@@ -205,7 +206,7 @@ void createFreelist(ememory *memory, int rows, int cols);
 void createStringFreelist(ememory *memory, int rows, int cols);
 void createNameFreelist(ememory *memory, int rows, int cols);
 int coreID(unsigned int *row, unsigned int *col);
-void coreInit(void);
+void coreInit(int argc, char *argv[]);
 void prpair(node *l);
 void print(node *l);
 void setflag(void);
@@ -290,7 +291,7 @@ node *evsym(node *exp, node *env);
 node *eval_list(node *sexp, node *env);
 node *eval(node *input, node *env);
 void REPL(char *input);
-int main(void);
+int main(int argc, char *argv[]);
 
 
 #define BUF_ADDRESS 0x8f000000
@@ -378,7 +379,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initilaize core memory
 //
-void coreInit() {
+void coreInit(int argc, char *argv[]) {
 
     memory = (ememory *)(BUF_ADDRESS);
 
@@ -492,7 +493,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initialize globals
 //
-void coreInit(void) {
+void coreInit(int argc, char *argv[]) {
     char *code;
 
     memory = (ememory *)malloc(sizeof(ememory));
@@ -505,7 +506,11 @@ void coreInit(void) {
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
 
-    code = readFile("code/p2.lisp");
+    if (argc == 2)
+        code = readFile(argv[1]);
+    else
+        code = readFile("testfuncs.lisp");
+
     scopy(memory->data[id].code, code);
 
     createFreelist(memory, 4, 4);
@@ -517,6 +522,11 @@ void coreInit(void) {
 //
 // Printing routines
 //
+
+void nl(void) {
+    printf("\n");
+}
+
 void prpair(node *l) {
     printf("%s", "(");
     print(car(l));
@@ -593,6 +603,12 @@ string *string_malloc() {
     return smalloc();
 }
 
+void string_free(string *n) {
+    stringmem -= strlen(n->s) + 1;
+    nstrings -= 1;
+    pushFree((stack *)n, (stack **)(&stringfreelist));
+}
+
 namestr *nmalloc(void) {
     if (namefreelist != NULL)
         return (namestr *)popFree((stack **)(&namefreelist));
@@ -604,6 +620,12 @@ namestr *name_malloc() {
     namemem += sizeof(namestr);
     nnames += 1;
     return nmalloc();
+}
+
+void name_free(namestr *n) {
+    namemem -= sizeof(namestr);
+    nnames -= 1;
+    pushFree((stack *)n, (stack **)(&namefreelist));
 }
 
 node *omalloc(void) {
@@ -619,15 +641,64 @@ node *node_malloc() {
     return (node *)omalloc();
 }
 
+void node_free(node *n) {
+    nodemem -= sizeof(node);
+    nnodes -= 1;
+    pushFree((stack *)n, (stack **)(&freelist));
+}
+
 //
-// Return free resource
+// GC
 //
+void pushFree(stack *ptr, stack **stk) {
+    ptr->next = *stk;
+    *stk = ptr;
+}
+
 stack *popFree(stack **stk) {
     if (*stk is NULL) return NULL;
     stack *item = *stk;
     *stk = (*stk)->next;
     item->next = NULL;
     return item;
+}
+
+void mark_expr(node *o, unsigned char persistence) {
+    if ( nullp(o) ) return;
+    if (pairp(o) or consp(o)) {
+        if (not nullp(o)) mark_expr(o->car, persistence);
+        if (not nullp(o)) mark_expr(o->cdr, persistence);
+    } else if (lambdap(o)) {
+        if (not nullp(o)) mark_expr(o->args, persistence);
+        if (not nullp(o)) mark_expr(o->body, persistence);
+    }
+    if (o->marked <= 1)
+        o->marked = persistence;
+    return;
+}
+
+void release_node(node *o) {
+    if ( nullp(o) ) return;
+
+    if(symp(o)) name_free(o->name);
+    else if (subrp(o) or fsubrp(o)) name_free(o->fname);
+
+    node_free(o);
+}
+
+void free_unmarked(node **allocated) {
+    node *cpy, **ptr = allocated;
+    while (*ptr isnt NULL) {
+        cpy = *ptr;
+        if (cpy->marked is 0) {
+            *ptr = next(cpy);
+            release_node(cpy);
+        } else {
+            ptr = &next(cpy);
+            if (cpy->marked is 1)
+                cpy->marked = 0;
+        }
+    }
 }
 
 //
@@ -637,6 +708,9 @@ node *newnode(enum ltype type) {
     node *n;
     n = (node *) node_malloc();
     n->type = type;
+    n->marked = 0;
+    next(n) = allocated;
+    allocated = n;
     return n;
 }
 
@@ -813,25 +887,6 @@ node *el_cons (node *args, node *env) {
     return cons(head, tail);
 }
 
-node *el_equal (node *args, node *env) {
-    node *first = nextarg(&args);
-    node *second = nextarg(&args);
-    if (symp(first) and symp(second))
-        return strequal(name(first), name(second)) is 0? tee : nil;
-    else
-        return nil;
-}
-
-node *el_atom (node *args, node *env) {
-    node *res = tee;
-    while (args isnt NULLPTR and consp(args)) {
-        if (not symp(car(args)))
-            res = nil;
-        args = cdr(args);
-    }
-    return res;
-}
-
 node *el_cond(node *args, node *env) {
     forlist (ptr in args)
         if (not nilp(eval(caar(ptr), env)))
@@ -993,9 +1048,123 @@ node *el_divide(node *args, node *env) {
 }
 
 //
+// New and modified primitives
+//
+node *el_atom (node *args, node *env) {
+    node *res = tee, *head;
+    while (args isnt NULLPTR and consp(args)) {
+        head = car(args);
+        if (not (nilp(head) || teep(head) || intp(head) || symp(head)))
+            res = nil;
+        args = cdr(args);
+    }
+    return res;
+}
+
+node *el_equal (node *args, node *env) {
+    node *first = nextarg(&args);
+    node *second = nextarg(&args);
+    if (symp(first) and symp(second))
+        return strequal(name(first), name(second)) is 0? tee : nil;
+    else if (intp(first) and intp(second))
+        return ival(first) == ival(second) ? tee : nil;
+    else
+        return nil;
+}
+
+node *el_lessthanequal(node *args, node *env) {
+    return compare(args, 'l');
+}
+
+node *el_greaterthanequal(node *args, node *env) {
+    return compare(args, 'g');
+}
+
+node *el_defun(node *args, node *env) {
+    node *name1 = nextarg(&args), *val;
+    node *lambda_args = nextarg(&args);
+    node *lam = lambda(lambda_args, nextarg(&args));
+    node *def = assq(name(name1), globals);
+    if(not nullp(def))
+        cdr(def) = lam;
+    else
+        add_pair(name1, lam, &globals);
+    return lam;
+}
+
+node *el_consp (node *args, node *env) {
+    node *val = nextarg(&args);
+    return consp(val) ? tee : nil;
+}
+
+node *el_funcall(node *args, node *env) {
+    node *funcname = eval(nextarg(&args), env);
+    node *funcargs = eval(nextarg(&args), env);
+    return eval(cons(funcname, cons(funcargs, NULLPTR)), env);
+}
+
+node *el_zerop(node *args, node *env) {
+    node *val = nextarg(&args);
+    return ival(val) == 0 ? tee : nil;
+}
+
+node *el_sub1(node *args, node *env) {
+    node *val = nextarg(&args);
+    return integer(ival(val) - 1);
+}
+
+node *el_add1(node *args, node *env) {
+    node *val = nextarg(&args);
+    return integer(ival(val) + 1);
+}
+
+node *el_numberp(node *args, node *env) {
+    node *val = nextarg(&args);
+    return intp(val) ? tee : nil;
+}
+
+node *el_or(node *args, node *env) {
+    forlist (item in args) {
+        node *val =  eval(car(item), env);
+        if (teep(val))
+            return tee;
+    }
+    return nil;
+}
+
+node *el_and(node *args, node *env) {
+    forlist (item in args) {
+        node *val =  eval(car(item), env);
+        if (!teep(val))
+            return nil;
+    }
+    return tee;
+}
+
+node *el_not(node *args, node *env) {
+    node *val = nextarg(&args);
+
+    if (nilp(val))
+        return tee;
+    if (intp(val)) {
+        if(ival(val) != 0)
+            return tee;
+    }
+
+    return nil;
+}
+
+node *el_setflag(node *args, node *env) {
+    pr(args);
+    setflag();
+    return nil;
+}
+
+//
 // init
 //
 void init_lisp() {
+    allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
     top_env = NULLPTR;
@@ -1019,6 +1188,7 @@ void init_lisp() {
     add_pair(sym("label"),      func(&el_label, FSUBR), &globals);
     add_pair(sym("define"),     func(&el_label, FSUBR), &globals);
     add_pair(sym("ldefine"),    func(&el_ldefine, FSUBR), &globals);
+    add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
     add_pair(sym("print"),      func(&el_print, SUBR), &globals);
     add_pair(sym("terpri"),     func(&el_terpri, FSUBR), &globals);
     add_pair(sym("<"),          func(&el_lessthan, SUBR), &globals);
@@ -1028,6 +1198,25 @@ void init_lisp() {
     add_pair(sym("/"),          func(&el_divide, SUBR), &globals);
     add_pair(sym("*"),          func(&el_times, SUBR), &globals);
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
+// new primitives
+    add_pair(sym("<="),         func(&el_lessthanequal, SUBR), &globals);
+    add_pair(sym(">="),         func(&el_greaterthanequal, SUBR), &globals);
+    add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
+    add_pair(sym("funcall"),    func(&el_funcall, FSUBR), &globals);
+    add_pair(sym("null"),       func(&el_nilp, SUBR), &globals);
+    add_pair(sym("consp"),      func(&el_consp, SUBR), &globals);
+    add_pair(sym("times"),      func(&el_times, SUBR), &globals);
+    add_pair(sym("zerop"),      func(&el_zerop, SUBR), &globals);
+    add_pair(sym("greaterp"),   func(&el_greaterthan, SUBR), &globals);
+    add_pair(sym("lessp"),      func(&el_lessthan, SUBR), &globals);
+    add_pair(sym("sub1"),       func(&el_sub1, SUBR), &globals);
+    add_pair(sym("add1"),       func(&el_add1, SUBR), &globals);
+    add_pair(sym("numberp"),    func(&el_numberp, SUBR), &globals);
+    add_pair(sym("eq"),         func(&el_equal, SUBR), &globals);
+    add_pair(sym("and"),        func(&el_and, SUBR), &globals);
+    add_pair(sym("or"),         func(&el_or, SUBR), &globals);
+    add_pair(sym("not"),        func(&el_not, SUBR), &globals);
+    add_pair(sym("setflag"),    func(&el_setflag, SUBR), &globals);
     nil = newnode(NIL);
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
@@ -1105,7 +1294,7 @@ int is_valid_int( char *str) {
 node *makeNode(node *n) {
     if (n->type is SYM) {
         char *name = n->name->s;
-        if (is_valid_int(name)) 
+        if (is_valid_int(name))
             return integer(stoi(name));
     }
     return n;
@@ -1211,14 +1400,22 @@ void REPL(char *input) {
 
     init_lisp();
 
+    mark_expr(globals, PERMANENT);
+    mark_expr(NULLPTR, PERMANENT);
+
     node *val;
 
     node *l = parse_string(&input);
+
+    mark_expr(l, PERMANENT);
 
     forlist (sexp in l) {
         pr(car(sexp));
         val = eval(car(sexp), top_env);
         pr(val);
+        mark_expr(globals, PERMANENT);
+        mark_expr(history, PERMANENT);
+        free_unmarked(&allocated);
     }
 
 }
@@ -1228,7 +1425,7 @@ void REPL(char *input) {
 //
 // test on the host - simulate the info for a single core
 //
-int main(void) {
+int main(int argc, char *argv[]) {
     unsigned int row, col;
 
     //
@@ -1239,7 +1436,7 @@ int main(void) {
     //
     // Initialize the core
     //
-    coreInit();
+    coreInit(argc, argv);
 
     //
     // load the code

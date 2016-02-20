@@ -1,5 +1,5 @@
 
-all: clean fl onefile
+all: gencode fl onefile
 	rm -f Trace.out
 
 build:
@@ -10,12 +10,15 @@ run:
 	(cd code; python gencode.py)
 	bash ./run.sh
 
-fl: force
+gencode:
 	(cd code; python gencode.py)
+
+fl: force
+	rm -f fl fl.exe
 	gcc -Os -std=gnu99 -o fl fl-device.c
 
 onefile: force
-	python onefile.py
+	rm -f onefile onefile.exe
 	gcc -Os -std=gnu99 -o onefile onefile.c
 	wc -l onefile.c
 
