@@ -221,7 +221,7 @@ code = """
 (nfibs 10)
 (testfun 13)
 (testfun 100)
-(sum-to-n 100)
+(sum-to-n 101)
 (gauss 100)
 (rember 'me '(please remove me))
 (multiins 'one 'two '(one three one three one three one three))
