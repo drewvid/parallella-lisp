@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(rember 'me '(please remove me))
-(filter numberp '(1 2 3 a b c 4 5 6))
-
 (nth '(1 2 3 4 5) 1)
-(nthcdr '(1 2 3 4 5) 2)
+(filter numberp '(1 2 3 a b c 4 5 6))
 (reverse2 '(1 2 3 4 5 6 7 8 9))
+(reverse '(1 2 3 4 5 6 7))
+(list-ref '(1 2 3 4) 1)
+(member 'me '(please remove me))

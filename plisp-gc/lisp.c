@@ -414,13 +414,19 @@ node *compare(node *args, int fcn) {
         icmp = i - ival(car(ptr));
         switch(fcn) {
         case '<':
-            icmp = (icmp < 0.0);
+            icmp = (icmp < 0);
+            break;
+        case 'l':
+            icmp = (icmp <= 0);
             break;
         case '=':
-            icmp = (icmp is 0.0);
+            icmp = (icmp is 0);
             break;
         case '>':
-            icmp = (icmp > 0.0);
+            icmp = (icmp > 0);
+            break;
+        case 'g':
+            icmp = (icmp >= 0);
             break;
         default:
             break;

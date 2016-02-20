@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(intersect '(a b c d e f) '(d e f))
-(member 'me '(please remove me))
 
-(rember 'me '(please remove me))
-(filter numberp '(1 2 3 a b c 4 5 6))
+(last '(1 2 3 4))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+
 (list-ref '(1 2 3 4) 1)
+(copy-list '(a b c d e f g))

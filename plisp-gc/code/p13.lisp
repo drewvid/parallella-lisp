@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-
-(filter numberp '(1 2 3 a b c 4 5 6))
-(nfibs 10)
-(nth '(1 2 3 4 5) 1)
-(multiins 'one 'two '(one three one three one three one three))
 (subst 'me 'you '(a list with me))
+(nfibs 10)
+(mapcar 'atom (list 1 '(2) foo t nil))
+(copy-list '(a b c d e f g))
+
+(nth '(1 2 3 4 5) 1)

@@ -154,9 +154,9 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(copy-tree '((a b c d) (e f g) h i j))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(rember 'me '(please remove me))
-(copy-list '(a b c d e f g))
 
+(nthcdr '(1 2 3 4 5) 2)
+(subst 'me 'you '(a list with me))
+(multiins 'one 'two '(one three one three one three one three))
+(nfibs 10)
 (last '(1 2 3 4))
