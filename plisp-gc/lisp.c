@@ -481,7 +481,9 @@ node *el_atom (node *args, node *env) {
 node *el_equal (node *args, node *env) {
     node *first = nextarg(&args);
     node *second = nextarg(&args);
-    if (symp(first) and symp(second))
+    if ((nilp(first) and nilp(second)) or (teep(first) and teep(second)))
+        return tee;
+    else if (symp(first) and symp(second))
         return strequal(name(first), name(second)) is 0? tee : nil;
     else if (intp(first) and intp(second))
         return ival(first) == ival(second) ? tee : nil;
