@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(any numberp '(a b))
-(intersect '(a b c d e f) '(d e f))
-(pow 2 3)
-
-(sum-to-n 100)
 (testfun 101)
-(filter numberp '(1 2 3 a b c 4 5 6))
-(reverse '(1 2 3 4 5 6 7))
 (testfun 13)
 
+(sum-to-n 100)
+(copy-tree '((a b c d) (e f g) h i j))
+(filter numberp '(1 2 3 a b c 4 5 6))
+(any numberp '(a b))
+(subst 'me 'you '(a list with me))
+(nthcdr '(1 2 3 4 5) 2)
+(gauss 100)

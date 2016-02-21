@@ -769,6 +769,8 @@ node *parse_string(char **input) {
 //
 int length(node *l) {
     int n = 0;
+    if (nilp(l))
+        return 0;
     forlist (ptr in l)
         n++;
     return n;
@@ -776,8 +778,10 @@ int length(node *l) {
 
 node *evlambda(node *vals, node *expr, node *env) {
     node *args = largs(expr), *res = nil;
-    if (length(args) is length(vals))
+    if (length(args) != 0 and length(args) is length(vals))
         res = eval(lbody(expr), make_env(args, vals, env));
+    else
+        res = eval(lbody(expr), env);
     return res ;
 }
 
