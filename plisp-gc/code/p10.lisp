@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(testfun 13)
-(length '(0 1 2 3 4 5 6 7 8 9))
-
+(any numberp '(1 a))
 (sum-to-n 100)
+(multiins 'one 'two '(one three one three one three one three))
+(every numberp '(1 a))
 (last '(1 2 3 4))
-(list-ref '(1 2 3 4) 1)
-(reverse2 '(1 2 3 4 5 6 7 8 9))
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(gauss 100)
+(reverse '(1 2 3 4 5 6 7))
+(member 'me '(please remove me))
 
+(rember 'me '(please remove me))
+(filter numberp '(1 2 3 a b c 4 5 6))

@@ -378,7 +378,7 @@ node *el_progn(node *args, node *env) {
 
 node *el_print(node *args, node *env) {
     pr(args);
-    return args;
+    return nil;
 }
 
 node *el_terpri(node *args, node *env) {
@@ -579,6 +579,11 @@ node *el_setflag(node *args, node *env) {
     return nil;
 }
 
+node *el_id(node *args, node *env) {
+    return integer(id);
+}
+
+
 //
 // init
 //
@@ -618,6 +623,7 @@ void init_lisp() {
     add_pair(sym("*"),          func(&el_times, SUBR), &globals);
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
 // new primitives
+    add_pair(sym("id"),         func(&el_id, FSUBR), &globals);
     add_pair(sym("<="),         func(&el_lessthanequal, SUBR), &globals);
     add_pair(sym(">="),         func(&el_greaterthanequal, SUBR), &globals);
     add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
