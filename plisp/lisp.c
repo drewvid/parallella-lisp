@@ -749,10 +749,10 @@ int length(node *l) {
 
 node *evlambda(node *vals, node *expr, node *env) {
     node *args = largs(expr), *res = nil;
-    if (length(args) != 0 and length(args) is length(vals))
-        res = eval(lbody(expr), make_env(args, vals, env));
-    else
+    if (length(args) == 0)
         res = eval(lbody(expr), env);
+    else if (length(args) is length(vals))
+        res = eval(lbody(expr), make_env(args, vals, env));
     return res ;
 }
 

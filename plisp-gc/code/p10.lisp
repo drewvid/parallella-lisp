@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nfibs 10)
-(length '(0 1 2 3 4 5 6 7 8 9))
-(rember 'me '(please remove me))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
 (any numberp '(a b))
-(member 'me '(please remove me))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(copy-tree '((a b c d) (e f g) h i j))
-(intersect '(a b c d e f) '(d e f))
-(append2 '(1 2 3 4) '(5 6 7 8 9))
+(every numberp '(1 a))
+
 (reverse '(1 2 3 4 5 6 7))
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+
+(subst 'me 'you '(a list with me))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
