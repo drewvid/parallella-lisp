@@ -200,14 +200,18 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 //
 // Allocate and initialize the ememory data structure
 //
-ememory *init_ememory(int rows, int cols) {
+ememory *init_ememory(int argc, char *argv[], int rows, int cols) {
     char *code, filename[128];
     ememory *memory = (ememory *)malloc(sizeof(ememory));
     lmem = (char *)memory;
     memset(memory, 0, sizeof(ememory));
     for(int i=0; i < NCORES; i++) {
-        sprintf(filename, "code/p%d.lisp", i);
-        code = readFile(filename);
+        if (argc == 2)
+            code = readFile(argv[1]);
+        else {
+            sprintf(filename, "code/p%d.lisp", i);
+            code = readFile(filename);
+        }
         sprintf(memory->data[i].code, "%s", code);
         free(code);
     }
@@ -278,7 +282,7 @@ void process_ememory(e_mem_t *emem, ememory *memory, int rows, int cols) {
 //
 // Lets go!
 //
-int main(void) {
+int main(int argc, char *argv[]) {
     int rows, cols;
     char *code, filename[64];
     e_platform_t platform;
@@ -295,7 +299,7 @@ int main(void) {
     rows = platform.rows;
     cols = platform.cols;
 
-    memory = init_ememory(rows, cols);
+    memory = init_ememory(argc, argv, rows, cols);
 
     //
     // open the device

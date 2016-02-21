@@ -349,7 +349,7 @@ node *el_progn(node *args, node *env) {
 
 node *el_print(node *args, node *env) {
     pr(args);
-    return args;
+    return nil;
 }
 
 node *el_terpri(node *args, node *env) {
@@ -550,6 +550,11 @@ node *el_setflag(node *args, node *env) {
     return nil;
 }
 
+node *el_id(node *args, node *env) {
+    return integer(id);
+}
+
+
 //
 // init
 //
@@ -589,6 +594,7 @@ void init_lisp() {
     add_pair(sym("*"),          func(&el_times, SUBR), &globals);
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
 // new primitives
+    add_pair(sym("id"),         func(&el_id, FSUBR), &globals);
     add_pair(sym("<="),         func(&el_lessthanequal, SUBR), &globals);
     add_pair(sym(">="),         func(&el_greaterthanequal, SUBR), &globals);
     add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
@@ -734,6 +740,8 @@ node *parse_string(char **input) {
 //
 int length(node *l) {
     int n = 0;
+    if (nilp(l))
+        return 0;
     forlist (ptr in l)
         n++;
     return n;
@@ -741,8 +749,10 @@ int length(node *l) {
 
 node *evlambda(node *vals, node *expr, node *env) {
     node *args = largs(expr), *res = nil;
-    if (length(args) is length(vals))
+    if (length(args) != 0 and length(args) is length(vals))
         res = eval(lbody(expr), make_env(args, vals, env));
+    else
+        res = eval(lbody(expr), env);
     return res ;
 }
 
