@@ -51,7 +51,9 @@ Both onefile and fl can now be called with a filename. If no filename is given t
 
     ./fl code/p2.lisp
 
-Adding more tests to testfuncs.lisp is not a good idea because there is a chance you will run out of memory. 
+Adding more tests to testfuncs.lisp in the folder plisp-gc is not a good idea because there is a chance you will run out of memory. The shell script plisp is also provided to execute the same lisp code on every core, try:
+
+    ./plisp prog.lisp
 
 ## LISP Primitives
 
