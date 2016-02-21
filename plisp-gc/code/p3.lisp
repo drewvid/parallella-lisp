@@ -213,12 +213,12 @@
            (any pred (cdr lst)))))
 
 (copy-tree '((a b c d) (e f g) h i j))
-(list-ref '(1 2 3 4) 1)
-
-(subst 'me 'you '(a list with me))
-(gauss 100)
-(intersect '(a b c d e f) '(d e f))
-(testfun 101)
-(nfibs 10)
-(nth '(1 2 3 4 5) 1)
+(mapcar 'atom (list 1 '(2) foo t nil))
 (pow 234 0)
+
+(nfibs 10)
+(append2 '(1 2 3 4) '(5 6 7 8 9))
+(gauss 100)
+(member 'me '(please remove me))
+(last '(1 2 3 4))
+(any numberp '(a b))

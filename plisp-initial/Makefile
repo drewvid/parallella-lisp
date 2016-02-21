@@ -8,7 +8,6 @@ build:
 
 run:
 	(cd code; python gencode.py)
-	e-reset
 	bash ./run.sh
 
 fl: force

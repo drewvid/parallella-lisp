@@ -64,13 +64,13 @@
 (= 2 3)
 (= 2 2)
 
-(cond ((atom 'a) 'b) (t 'c))
-(cond ( nil (quote b)) (t (quote c)))
-(atom 'a)
-
-(equal (car (cdr '(a b))) 'a)
-(equal (car '(a b)) 'a)
-(equal nil nil)
-(equal 1 1)
-
 (car xx)
+'(a b c)
+(cdr '(a b c))
+(equal t t)
+
+(cons 'a '(b c))
+
+(atom 'a)
+(equal nil nil)
+(cdr xx)
