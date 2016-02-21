@@ -15,7 +15,7 @@ string *string_malloc() {
 }
 
 void string_free(string *n) {
-    stringmem -= strlen(n->s) + 1;
+    stringmem -= slen(n->s) + 1;
     nstrings -= 1;
     pushFree((stack *)n, (stack **)(&stringfreelist));
 }
@@ -409,7 +409,7 @@ node *binary(node *args, int fcn) {
 }
 
 node *compare(node *args, int fcn) {
-    int i = ival(nextarg(&args)), icmp;
+    int i = ival(nextarg(&args)), icmp = 0;
     forlist (ptr in args) {
         icmp = i - ival(car(ptr));
         switch(fcn) {
@@ -500,7 +500,7 @@ node *el_greaterthanequal(node *args, node *env) {
 }
 
 node *el_defun(node *args, node *env) {
-    node *name1 = nextarg(&args), *val;
+    node *name1 = nextarg(&args);
     node *lambda_args = nextarg(&args);
     node *lam = lambda(lambda_args, nextarg(&args));
     node *def = assq(name(name1), globals);

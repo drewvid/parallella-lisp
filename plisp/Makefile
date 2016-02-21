@@ -15,7 +15,7 @@ gencode:
 
 fl: force
 	rm -f fl fl.exe
-	gcc -Os -std=gnu99 -o fl fl-device.c
+	gcc -Os -std=gnu99 -Wall -o fl fl-device.c
 
 onefile: force
 	rm -f onefile onefile.exe

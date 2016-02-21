@@ -5,6 +5,7 @@ void addString(char *s);
 void addValue(char *s, long i);
 char *scopy(char *s1, const char *s2);
 long stoi(const char *c);
+int slen(char *s);
 void prStats(void);
 char *readFile(char *fileName);
 void createFreelist(ememory *memory, int rows, int cols);

@@ -63,6 +63,16 @@ long stoi(const char *c)
 }
 
 //
+// length of a string
+//
+int slen(char *s) {
+   int c = 0;
+   while(*(s+c))
+      c++;
+   return c;
+}
+
+//
 // add memory stats to the history list
 //
 void prStats() {
