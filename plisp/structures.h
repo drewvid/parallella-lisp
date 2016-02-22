@@ -12,7 +12,7 @@ typedef struct DIRECTIVE stack stack;
 
 struct DIRECTIVE node {
     node *next;
-    enum ltype type;
+    unsigned char type;
     unsigned char marked;
     union {
         namestr *name;

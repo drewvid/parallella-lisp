@@ -72,13 +72,13 @@
 (= 2 3)
 (= 2 2)
 
-(cond ( nil 'b) (t 'c))
-(equal nil nil)
-(equal 1 1)
-'a
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
-(cdr '(a b c))
-(cdr xx)
-(car '(a b c))
-(car xx)
+(equal (car (cdr '(a b))) 'a)
 (cond ((atom 'a) 'b) (t 'c))
+(equal nil nil)
+(cdr xx)
+(cdr '(a b c))
+'(a b c)
+
+(ff '(a b) (cdr '(c d)))
+((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
+(cons 'a '(b c))
