@@ -62,8 +62,6 @@ node *el_if(node *args, node *env);
 node *el_lambda(node *args, node *env);
 node *el_label(node *args, node *env);
 node *el_ldefine(node *args, node *env);
-node *el_append(node *args, node *env);
-node *el_concat(node *args, node *env);
 node *el_loop(node *args, node *env);
 node *el_block(node *args, node *env);
 node *el_progn(node *args, node *env);

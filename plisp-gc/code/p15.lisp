@@ -176,12 +176,12 @@
   (if (null lst) zero
       (reverse- (cons (car lst) zero) (cdr lst))))
 
+(defun reverse (lst) (reverse- () lst))
+
 (defun last (l)
   (cond ((atom l)        l)
         ((atom (cdr l))  l)
         (t               (last (cdr l)))))
-
-(defun reverse (lst) (reverse- () lst))
 
 (defun foldr (f zero lst)
   (if (null lst) zero
@@ -193,7 +193,7 @@
 
 (defun reverse2 (lst) (foldl cons nil lst))
 
-(defun append2 (a b) (foldr cons b a))
+(defun append (a b) (foldr cons b a))
 
 (defun identity (x) x)
 (defun copy-list (l) (map identity l))
@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(reverse '(1 2 3 4 5 6 7))
-(mapcar 'atom (list 1 '(2) foo t nil))
-(sum-to-n 100)
-(every numberp '(1 a))
+(copy-tree '((a b c d) (e f g) h i j))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
 (mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(pow 2 3)
-(multiins 'one 'two '(one three one three one three one three))
-(nth '(1 2 3 4 5) 1)
-(every numberp '(1 2))
-(gauss 100)
+(any numberp '(a b))
+(every numberp '(1 a))
+(intersect '(a b c d e f) '(d e f))
+(nfibs 10)
+
+(reverse '(1 2 3 4 5 6 7 8 9))
+(testfun 101)

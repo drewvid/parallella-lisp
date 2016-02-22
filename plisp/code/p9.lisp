@@ -65,12 +65,12 @@
 (= 2 2)
 
 (equal t t)
-(cond ( nil (quote b)) (t (quote c)))
-'(a b c)
 
-((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
-(ff '(a b) (cdr '(c d)))
-
-(equal (car '(a b)) 'a)
+(cons 'a '(b c))
 (car '(a b c))
-(car xx)
+(ff '(a b) (cdr '(c d)))
+(cond ((atom 'a) 'b) (t 'c))
+(cond ( nil (quote b)) (t (quote c)))
+(equal nil nil)
+'(a b c)
+(cdr xx)

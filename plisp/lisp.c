@@ -158,12 +158,6 @@ node *append(node *list, node *obj) {
     return list;
 }
 
-node *concat(node *l1, node *l2) {
-    node *ptr = lastcell(l1);
-    rplacd(ptr, l2);
-    return l1;
-}
-
 void atl(node **l, node *item) {
     if (*l is NULLPTR) // Initialize the list
         *l = cons(item, NULLPTR);
@@ -312,16 +306,6 @@ node *el_ldefine(node *args, node *env) {
     else
         append(ebindings(env), pair(name1, val));
     return val;
-}
-
-node *el_append(node *args, node *env) {
-    node *l1 = nextarg(&args);
-    return append(l1, nextarg(&args));
-}
-
-node *el_concat(node *args, node *env) {
-    node *l1 = nextarg(&args);
-    return concat(l1, nextarg(&args));
 }
 
 node *el_loop(node *args, node *env) {
@@ -570,8 +554,6 @@ void init_lisp() {
     add_pair(sym("cdr"),        func(&el_cdr, SUBR), &globals);
     add_pair(sym("nilp"),       func(&el_nilp, SUBR), &globals);
     add_pair(sym("cons"),       func(&el_cons, SUBR), &globals);
-    add_pair(sym("append"),     func(&el_append, SUBR), &globals);
-    add_pair(sym("concat"),     func(&el_concat, SUBR), &globals);
     add_pair(sym("loop"),       func(&el_loop, FSUBR), &globals);
     add_pair(sym("block"),      func(&el_block, FSUBR), &globals);
     add_pair(sym("progn"),      func(&el_progn, FSUBR), &globals);
