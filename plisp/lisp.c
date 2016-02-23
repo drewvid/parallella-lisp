@@ -158,6 +158,12 @@ node *append(node *list, node *obj) {
     return list;
 }
 
+node *concat(node *l1, node *l2) {
+    node *ptr = lastcell(l1);
+    rplacd(ptr, l2);
+    return l1;
+}
+
 void atl(node **l, node *item) {
     if (*l is NULLPTR) // Initialize the list
         *l = cons(item, NULLPTR);
@@ -274,12 +280,16 @@ node *el_if(node *args, node *env) {
     node *cond, *iftrue;
     cond = eval(nextarg(&args), env);
     iftrue = nextarg(&args);
-    return (type(cond) is TEE) ? eval(iftrue, env) : eval(nextarg(&args), env);
+    return (type(cond) != NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
 }
 
 node *el_lambda (node *args, node *env) {
-    node *lambda_args = nextarg(&args);
-    return lambda(lambda_args, nextarg(&args));
+    node *lambda_args = nextarg(&args), *lambda_body;
+    if (length(args) > 1)
+        lambda_body = concat(cons(sym("progn"), NULLPTR), args);
+    else
+        lambda_body = nextarg(&args);
+    return lambda(lambda_args, lambda_body);
 }
 
 node *el_label (node *args, node *env) {
@@ -473,8 +483,8 @@ node *el_consp (node *args, node *env) {
 
 node *el_funcall(node *args, node *env) {
     node *funcname = eval(nextarg(&args), env);
-    node *funcargs = eval(nextarg(&args), env);
-    return eval(cons(funcname, cons(funcargs, NULLPTR)), env);
+    node *expr = concat(cons(funcname, NULLPTR), args);
+    return eval(expr, env);
 }
 
 node *el_zerop(node *args, node *env) {
