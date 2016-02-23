@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(pow 234 0)
-(testfun 101)
-(reverse2 '(1 2 3 4 5 6 7 8 9))
-
-(testfun 13)
-(filter numberp '(1 2 3 a b c 4 5 6))
-(last '(1 2 3 4))
-(intersect '(a b c d e f) '(d e f))
-(list-ref '(1 2 3 4) 1)
+(copy-list '(a b c d e f g))
 (gauss 100)
+
+(any numberp '(1 a))
+(mapcar 'atom (list 1 '(2) foo t nil))
+(member 'me '(please remove me))
+
+(subst 'me 'you '(a list with me))
+(pow 234 0)
+(nth '(1 2 3 4 5) 1)

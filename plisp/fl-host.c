@@ -113,6 +113,10 @@ void print(node *l) {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
+    if(!file) {
+        fprintf(stderr, "%s\n", "file not found");
+        exit(-1);
+    }
     char *code;
     size_t n = 0;
     int c;
@@ -202,19 +206,25 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 //
 ememory *init_ememory(int argc, char *argv[], int rows, int cols) {
     char *code, filename[128];
-    ememory *memory = (ememory *)malloc(sizeof(ememory));
+    ememory *memory = (ememory *)calloc(1, sizeof(ememory));
+    if(!memory) {
+        fprintf(stderr, "%s\n", "out of memory in init_ememory");
+        exit(-1);
+    }
     lmem = (char *)memory;
-    memset(memory, 0, sizeof(ememory));
+    if (argc == 2)
+        code = readFile(argv[1]);
     for(int i=0; i < NCORES; i++) {
-        if (argc == 2)
-            code = readFile(argv[1]);
-        else {
+        if (argc != 2) {
             sprintf(filename, "code/p%d.lisp", i);
             code = readFile(filename);
-        }
-        sprintf(memory->data[i].code, "%s", code);
-        free(code);
+            sprintf(memory->data[i].code, "%s", code);
+            free(code);
+        } else
+            sprintf(memory->data[i].code, "%s", code);
     }
+    if (argc == 2)
+        free(code);
     createFreelist(memory, rows, cols);
     createStringFreelist(memory, rows, cols);
     createNameFreelist(memory, rows, cols);

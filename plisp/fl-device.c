@@ -148,6 +148,10 @@ void setflag() {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
+    if(!file) {
+        fprintf(stderr, "%s\n", "file not found");
+        exit(-1);
+    }
     string *code;
     size_t n = 0;
     int c;
@@ -225,7 +229,11 @@ int coreID(unsigned int *row, unsigned int *col) {
 void coreInit(int argc, char *argv[]) {
     char *code;
 
-    memory = (ememory *)malloc(sizeof(ememory));
+    memory = (ememory *)calloc(1, sizeof(ememory));
+    if(!memory) {
+        fprintf(stderr, "%s\n", "out of memory in init_ememory");
+        exit(-1);
+    }
 
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
