@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nth '(1 2 3 4 5) 1)
-(rember 'me '(please remove me))
-(multiins 'one 'two '(one three one three one three one three))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
 (testfun 101)
-(pow 234 0)
+(rember 'me '(please remove me))
+(nthcdr '(1 2 3 4 5) 2)
+(intersect '(a b c d e f) '(d e f))
 
-
-(testfun 13)
+(every numberp '(1 2))
+(list-ref '(1 2 3 4) 1)
+(length '(0 1 2 3 4 5 6 7 8 9))
 (sum-to-n 100)
-(reverse2 '(1 2 3 4 5 6 7 8 9))

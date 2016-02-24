@@ -796,6 +796,7 @@ void REPL(char *input) {
 
     node *top_env = newnode(ENV);
     top_env->bindings = NULLPTR;
+    top_env->marked = PERMANENT;
 
     forlist (sexp in l) {
         pr(car(sexp));
