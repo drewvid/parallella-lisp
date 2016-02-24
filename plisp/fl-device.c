@@ -20,7 +20,7 @@ void pr(node *cell) {
     atl(&history, cell);
 }
 
-void addInt(long i) {
+void addInt(long long i) {
     pr(integer(i));
 }
 
@@ -28,7 +28,7 @@ void addString(char *s) {
     pr(sym(s));
 }
 
-void addValue(char *s, long i) {
+void addValue(char *s, long long i) {
     addString(s); addInt(i);
 }
 
@@ -46,9 +46,9 @@ char *scopy(char *s1, const char *s2) {
 //
 // local version of atoi
 //
-long stoi(const char *c)
+long long stoi(const char *c)
 {
-    long value = 0;
+    long long value = 0;
     int sign = 1;
     if( *c == '+' || *c == '-' ) {
         if( *c == '-' ) sign = -1;
@@ -234,7 +234,6 @@ void coreInit(int argc, char *argv[]) {
         fprintf(stderr, "%s\n", "out of memory in init_ememory");
         exit(-1);
     }
-
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
@@ -282,7 +281,7 @@ void print(node *l) {
     else if (symp(l)) // symbol
         printf(" %s ", name(l));
     else if (intp(l)) // integer
-        printf(" %ld ", ival(l));
+        printf(" %lld ", ival(l));
     else if(lambdap(l)) { // lambda expression
         printf(" #lambda ");
         print(largs(l));

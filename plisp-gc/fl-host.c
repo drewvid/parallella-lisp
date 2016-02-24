@@ -56,8 +56,8 @@ char *dr_name(node *cell) {
 //
 // Access the integer value
 //
-long ival(node *cell) {
-    long i = cell->i;
+long long ival(node *cell) {
+    long long i = cell->i;
     return i;
 }
 
@@ -84,7 +84,7 @@ void print(node *l) {
     else if (symp(l)) // symbol
         printf(" %s ", dr_name(l));
     else if (intp(l)) { // integer
-        printf(" %ld ", ival(l));
+        printf(" %lld ", ival(l));
     } else if(lambdap(l)) { // lambda expression
         printf(" #lambda ");
         print(largs(l));

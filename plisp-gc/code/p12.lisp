@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(sum-to-n 100)
-(nfibs 10)
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(every numberp '(1 2))
 (nth '(1 2 3 4 5) 1)
-(every numberp '(1 a))
-
-(copy-tree '((a b c d) (e f g) h i j))
+(rember 'me '(please remove me))
 (multiins 'one 'two '(one three one three one three one three))
-(filter numberp '(1 2 3 a b c 4 5 6))
+(testfun 101)
+(pow 234 0)
+
+
+(testfun 13)
+(sum-to-n 100)
+(reverse2 '(1 2 3 4 5 6 7 8 9))

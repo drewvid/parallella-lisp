@@ -28,7 +28,7 @@ struct DIRECTIVE node {
             node *args;
             node *body;
         };
-        long i;
+        long long i;
         double r;
         struct {
             node *top;

@@ -130,14 +130,16 @@ node *lambda (node *args, node *sexp) {
     return ptr;
 }
 
-node* integer(long num) {
+node* integer(long long num) {
     node *ptr = newnode(INT);
     ival(ptr) = num;
     return ptr;
 }
 
-node *newcontext(node *bindings) {
+node *newcontext(node *bindings, node *top) {
     node *env = newnode(ENV);
+    if(ebindings(top))
+        bindings = concat(bindings, ebindings(top));
     ebindings(env) = bindings;
     return env;
 }
@@ -237,7 +239,7 @@ node *make_env(node *vars, node *vals, node *env) {
     node *nenv = NULLPTR;
     forlist2 (pvar in vars, pval in vals)
         add_pair(car(pvar), eval(car(pval), env), &nenv);
-    return newcontext(nenv);
+    return newcontext(nenv, env);
 }
 
 //
@@ -351,7 +353,7 @@ node *el_terpri(node *args, node *env) {
 }
 
 node *binary(node *args, int fcn) {
-    int i = ival(nextarg(&args));
+    long long i = ival(nextarg(&args));
     forlist (ptr in args) {
         switch(fcn) {
         case '+':
@@ -374,7 +376,7 @@ node *binary(node *args, int fcn) {
 }
 
 node *compare(node *args, int fcn) {
-    int i = ival(nextarg(&args)), icmp = 0;
+    long long i = ival(nextarg(&args)), icmp = 0;
     forlist (ptr in args) {
         icmp = i - ival(car(ptr));
         switch(fcn) {
@@ -556,7 +558,6 @@ void init_lisp() {
     allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
-    top_env = NULLPTR;
     history = NULLPTR;
     add_pair(sym("eval") ,      func(&eval, SUBR), &globals);
     add_pair(sym("quote") ,     func(&el_quote, FSUBR), &globals);
@@ -609,7 +610,6 @@ void init_lisp() {
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
-    top_env = globals;
 }
 
 //
@@ -794,8 +794,12 @@ void REPL(char *input) {
 
     node *l = parse_string(&input);
 
+    node *top_env = newnode(ENV);
+    top_env->bindings = NULLPTR;
+
     forlist (sexp in l) {
         pr(car(sexp));
+        top_env->bindings = NULLPTR;
         val = eval(car(sexp), top_env);
         pr(val);
     }

@@ -99,7 +99,7 @@ typedef struct DIRECTIVE stack stack;
 
 struct DIRECTIVE node {
     node *next;
-    enum ltype type;
+    unsigned char type;
     unsigned char marked;
     union {
         namestr *name;
@@ -115,7 +115,7 @@ struct DIRECTIVE node {
             node *args;
             node *body;
         };
-        long i;
+        long long i;
         double r;
         struct {
             node *top;
@@ -158,15 +158,10 @@ struct DIRECTIVE ememory {
     edata data[NCORES];
 };
 
-int callmax = 30000;
-
-int ncalls = 0;
-
 node *tee;
 node *nil;
 node *NULLPTR;
 node *globals;
-node *top_env;
 node *history;
 node *freelist;
 string *stringfreelist;
@@ -195,11 +190,12 @@ int id;
 
 /* fl-device.c */
 void pr(node *cell);
-void addInt(long i);
+void addInt(long long i);
 void addString(char *s);
-void addValue(char *s, long i);
+void addValue(char *s, long long i);
 char *scopy(char *s1, const char *s2);
-long stoi(const char *c);
+long long stoi(const char *c);
+int slen(char *s);
 void prStats(void);
 char *readFile(char *fileName);
 void createFreelist(ememory *memory, int rows, int cols);
@@ -207,6 +203,7 @@ void createStringFreelist(ememory *memory, int rows, int cols);
 void createNameFreelist(ememory *memory, int rows, int cols);
 int coreID(unsigned int *row, unsigned int *col);
 void coreInit(int argc, char *argv[]);
+void nl(void);
 void prpair(node *l);
 void print(node *l);
 void setflag(void);
@@ -230,8 +227,8 @@ node *cons(node *head, node *tail);
 node *pair(node *head, node *tail);
 node *func(node *(*fn)(node *, node *), enum ltype type);
 node *lambda(node *args, node *sexp);
-node *integer(long num);
-node *newcontext(node *bindings);
+node *integer(long long num);
+node *newcontext(node *bindings, node *top);
 node *lastcell(node *list);
 node *append(node *list, node *obj);
 node *concat(node *l1, node *l2);
@@ -250,15 +247,11 @@ node *el_cdr(node *args, node *env);
 node *el_nilp(node *args, node *env);
 node *el_quote(node *args, node *env);
 node *el_cons(node *args, node *env);
-node *el_equal(node *args, node *env);
-node *el_atom(node *args, node *env);
 node *el_cond(node *args, node *env);
 node *el_if(node *args, node *env);
 node *el_lambda(node *args, node *env);
 node *el_label(node *args, node *env);
 node *el_ldefine(node *args, node *env);
-node *el_append(node *args, node *env);
-node *el_concat(node *args, node *env);
 node *el_loop(node *args, node *env);
 node *el_block(node *args, node *env);
 node *el_progn(node *args, node *env);
@@ -273,6 +266,22 @@ node *el_plus(node *args, node *env);
 node *el_minus(node *args, node *env);
 node *el_times(node *args, node *env);
 node *el_divide(node *args, node *env);
+node *el_atom(node *args, node *env);
+node *el_equal(node *args, node *env);
+node *el_lessthanequal(node *args, node *env);
+node *el_greaterthanequal(node *args, node *env);
+node *el_defun(node *args, node *env);
+node *el_consp(node *args, node *env);
+node *el_funcall(node *args, node *env);
+node *el_zerop(node *args, node *env);
+node *el_sub1(node *args, node *env);
+node *el_add1(node *args, node *env);
+node *el_numberp(node *args, node *env);
+node *el_or(node *args, node *env);
+node *el_and(node *args, node *env);
+node *el_not(node *args, node *env);
+node *el_setflag(node *args, node *env);
+node *el_id(node *args, node *env);
 void init_lisp(void);
 int getChar(char **s);
 int ungetChar(char **s);
@@ -303,7 +312,7 @@ void pr(node *cell) {
     atl(&history, cell);
 }
 
-void addInt(long i) {
+void addInt(long long i) {
     pr(integer(i));
 }
 
@@ -311,7 +320,7 @@ void addString(char *s) {
     pr(sym(s));
 }
 
-void addValue(char *s, long i) {
+void addValue(char *s, long long i) {
     addString(s); addInt(i);
 }
 
@@ -329,9 +338,9 @@ char *scopy(char *s1, const char *s2) {
 //
 // local version of atoi
 //
-long stoi(const char *c)
+long long stoi(const char *c)
 {
-    long value = 0;
+    long long value = 0;
     int sign = 1;
     if( *c == '+' || *c == '-' ) {
         if( *c == '-' ) sign = -1;
@@ -346,10 +355,21 @@ long stoi(const char *c)
 }
 
 //
+// length of a string
+//
+int slen(char *s) {
+   int c = 0;
+   while(*(s+c))
+      c++;
+   return c;
+}
+
+//
 // add memory stats to the history list
 //
 void prStats() {
     addValue("id: ", id);
+    addValue("memory: ", sizeof(ememory));
     addValue("node size: ", sizeof(node));
     addValue("nnodes: ", nnodes);
     addValue("nodemem: ", nodemem);
@@ -400,7 +420,8 @@ void coreInit(int argc, char *argv[]) {
 void setflag() {
     unsigned *d;
 
-    prStats();
+    if(nnodes < FREEOBJECT && nnames < FREENAME)
+        prStats();
 
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
@@ -419,6 +440,10 @@ void setflag() {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
+    if(!file) {
+        fprintf(stderr, "%s\n", "file not found");
+        exit(-1);
+    }
     string *code;
     size_t n = 0;
     int c;
@@ -496,8 +521,11 @@ int coreID(unsigned int *row, unsigned int *col) {
 void coreInit(int argc, char *argv[]) {
     char *code;
 
-    memory = (ememory *)malloc(sizeof(ememory));
-
+    memory = (ememory *)calloc(1, sizeof(ememory));
+    if(!memory) {
+        fprintf(stderr, "%s\n", "out of memory in init_ememory");
+        exit(-1);
+    }
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
@@ -545,7 +573,7 @@ void print(node *l) {
     else if (symp(l)) // symbol
         printf(" %s ", name(l));
     else if (intp(l)) // integer
-        printf(" %ld ", ival(l));
+        printf(" %lld ", ival(l));
     else if(lambdap(l)) { // lambda expression
         printf(" #lambda ");
         print(largs(l));
@@ -574,11 +602,17 @@ void print(node *l) {
 //
 void setflag() {
 
-    prStats();
-
-    forlist (ptr in history) {
-        print(car(ptr));
-        printf("\n");
+    if(nnodes < FREEOBJECT && nnames < FREENAME) {
+        prStats();
+        forlist (ptr in history) {
+            print(car(ptr));
+            printf("\n");
+        }
+    } else {
+        printf("OUT OF MEMORY\n");
+        printf("nnodes %d\n", nnodes);
+        printf("nnames %d\n", nnames);
+        printf("nstrings %d\n", nstrings);
     }
 
     exit(0);
@@ -604,7 +638,7 @@ string *string_malloc() {
 }
 
 void string_free(string *n) {
-    stringmem -= strlen(n->s) + 1;
+    stringmem -= slen(n->s) + 1;
     nstrings -= 1;
     pushFree((stack *)n, (stack **)(&stringfreelist));
 }
@@ -748,14 +782,16 @@ node *lambda (node *args, node *sexp) {
     return ptr;
 }
 
-node* integer(long num) {
+node* integer(long long num) {
     node *ptr = newnode(INT);
     ival(ptr) = num;
     return ptr;
 }
 
-node *newcontext(node *bindings) {
+node *newcontext(node *bindings, node *top) {
     node *env = newnode(ENV);
+    if(ebindings(top))
+        bindings = concat(bindings, ebindings(top));
     ebindings(env) = bindings;
     return env;
 }
@@ -855,7 +891,7 @@ node *make_env(node *vars, node *vals, node *env) {
     node *nenv = NULLPTR;
     forlist2 (pvar in vars, pval in vals)
         add_pair(car(pvar), eval(car(pval), env), &nenv);
-    return newcontext(nenv);
+    return newcontext(nenv, env);
 }
 
 //
@@ -898,12 +934,16 @@ node *el_if(node *args, node *env) {
     node *cond, *iftrue;
     cond = eval(nextarg(&args), env);
     iftrue = nextarg(&args);
-    return (type(cond) is TEE) ? eval(iftrue, env) : eval(nextarg(&args), env);
+    return (type(cond) != NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
 }
 
 node *el_lambda (node *args, node *env) {
-    node *lambda_args = nextarg(&args);
-    return lambda(lambda_args, nextarg(&args));
+    node *lambda_args = nextarg(&args), *lambda_body;
+    if (length(args) > 1)
+        lambda_body = concat(cons(sym("progn"), NULLPTR), args);
+    else
+        lambda_body = nextarg(&args);
+    return lambda(lambda_args, lambda_body);
 }
 
 node *el_label (node *args, node *env) {
@@ -932,16 +972,6 @@ node *el_ldefine(node *args, node *env) {
     return val;
 }
 
-node *el_append(node *args, node *env) {
-    node *l1 = nextarg(&args);
-    return append(l1, nextarg(&args));
-}
-
-node *el_concat(node *args, node *env) {
-    node *l1 = nextarg(&args);
-    return concat(l1, nextarg(&args));
-}
-
 node *el_loop(node *args, node *env) {
     node *cond = nextarg(&args), *val = NULLPTR;
     while(type(eval(cond, env)) is TEE) {
@@ -967,7 +997,7 @@ node *el_progn(node *args, node *env) {
 
 node *el_print(node *args, node *env) {
     pr(args);
-    return args;
+    return nil;
 }
 
 node *el_terpri(node *args, node *env) {
@@ -975,7 +1005,7 @@ node *el_terpri(node *args, node *env) {
 }
 
 node *binary(node *args, int fcn) {
-    int i = ival(nextarg(&args));
+    long long i = ival(nextarg(&args));
     forlist (ptr in args) {
         switch(fcn) {
         case '+':
@@ -998,18 +1028,24 @@ node *binary(node *args, int fcn) {
 }
 
 node *compare(node *args, int fcn) {
-    int i = ival(nextarg(&args)), icmp;
+    long long i = ival(nextarg(&args)), icmp = 0;
     forlist (ptr in args) {
         icmp = i - ival(car(ptr));
         switch(fcn) {
         case '<':
-            icmp = (icmp < 0.0);
+            icmp = (icmp < 0);
+            break;
+        case 'l':
+            icmp = (icmp <= 0);
             break;
         case '=':
-            icmp = (icmp is 0.0);
+            icmp = (icmp is 0);
             break;
         case '>':
-            icmp = (icmp > 0.0);
+            icmp = (icmp > 0);
+            break;
+        case 'g':
+            icmp = (icmp >= 0);
             break;
         default:
             break;
@@ -1064,7 +1100,9 @@ node *el_atom (node *args, node *env) {
 node *el_equal (node *args, node *env) {
     node *first = nextarg(&args);
     node *second = nextarg(&args);
-    if (symp(first) and symp(second))
+    if ((nilp(first) and nilp(second)) or (teep(first) and teep(second)))
+        return tee;
+    else if (symp(first) and symp(second))
         return strequal(name(first), name(second)) is 0? tee : nil;
     else if (intp(first) and intp(second))
         return ival(first) == ival(second) ? tee : nil;
@@ -1081,7 +1119,7 @@ node *el_greaterthanequal(node *args, node *env) {
 }
 
 node *el_defun(node *args, node *env) {
-    node *name1 = nextarg(&args), *val;
+    node *name1 = nextarg(&args);
     node *lambda_args = nextarg(&args);
     node *lam = lambda(lambda_args, nextarg(&args));
     node *def = assq(name(name1), globals);
@@ -1099,8 +1137,8 @@ node *el_consp (node *args, node *env) {
 
 node *el_funcall(node *args, node *env) {
     node *funcname = eval(nextarg(&args), env);
-    node *funcargs = eval(nextarg(&args), env);
-    return eval(cons(funcname, cons(funcargs, NULLPTR)), env);
+    node *expr = concat(cons(funcname, NULLPTR), args);
+    return eval(expr, env);
 }
 
 node *el_zerop(node *args, node *env) {
@@ -1160,6 +1198,11 @@ node *el_setflag(node *args, node *env) {
     return nil;
 }
 
+node *el_id(node *args, node *env) {
+    return integer(id);
+}
+
+
 //
 // init
 //
@@ -1167,7 +1210,6 @@ void init_lisp() {
     allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
-    top_env = NULLPTR;
     history = NULLPTR;
     add_pair(sym("eval") ,      func(&eval, SUBR), &globals);
     add_pair(sym("quote") ,     func(&el_quote, FSUBR), &globals);
@@ -1175,8 +1217,6 @@ void init_lisp() {
     add_pair(sym("cdr"),        func(&el_cdr, SUBR), &globals);
     add_pair(sym("nilp"),       func(&el_nilp, SUBR), &globals);
     add_pair(sym("cons"),       func(&el_cons, SUBR), &globals);
-    add_pair(sym("append"),     func(&el_append, SUBR), &globals);
-    add_pair(sym("concat"),     func(&el_concat, SUBR), &globals);
     add_pair(sym("loop"),       func(&el_loop, FSUBR), &globals);
     add_pair(sym("block"),      func(&el_block, FSUBR), &globals);
     add_pair(sym("progn"),      func(&el_progn, FSUBR), &globals);
@@ -1199,6 +1239,7 @@ void init_lisp() {
     add_pair(sym("*"),          func(&el_times, SUBR), &globals);
     add_pair(sym("="),          func(&el_eq, SUBR), &globals);
 // new primitives
+    add_pair(sym("id"),         func(&el_id, FSUBR), &globals);
     add_pair(sym("<="),         func(&el_lessthanequal, SUBR), &globals);
     add_pair(sym(">="),         func(&el_greaterthanequal, SUBR), &globals);
     add_pair(sym("defun"),      func(&el_defun, FSUBR), &globals);
@@ -1213,15 +1254,14 @@ void init_lisp() {
     add_pair(sym("add1"),       func(&el_add1, SUBR), &globals);
     add_pair(sym("numberp"),    func(&el_numberp, SUBR), &globals);
     add_pair(sym("eq"),         func(&el_equal, SUBR), &globals);
-    add_pair(sym("and"),        func(&el_and, SUBR), &globals);
-    add_pair(sym("or"),         func(&el_or, SUBR), &globals);
+    add_pair(sym("and"),        func(&el_and, FSUBR), &globals);
+    add_pair(sym("or"),         func(&el_or, FSUBR), &globals);
     add_pair(sym("not"),        func(&el_not, SUBR), &globals);
     add_pair(sym("setflag"),    func(&el_setflag, SUBR), &globals);
     nil = newnode(NIL);
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
-    top_env = globals;
 }
 
 //
@@ -1344,6 +1384,8 @@ node *parse_string(char **input) {
 //
 int length(node *l) {
     int n = 0;
+    if (nilp(l))
+        return 0;
     forlist (ptr in l)
         n++;
     return n;
@@ -1351,10 +1393,10 @@ int length(node *l) {
 
 node *evlambda(node *vals, node *expr, node *env) {
     node *args = largs(expr), *res = nil;
-    if (length(args) is length(vals)) {
-        ncalls += 1;
+    if (length(args) == 0)
+        res = eval(lbody(expr), env);
+    else if (length(args) is length(vals))
         res = eval(lbody(expr), make_env(args, vals, env));
-    }
     return res ;
 }
 
@@ -1384,7 +1426,7 @@ node *eval_list(node *sexp, node *env) {
 }
 
 node *eval(node *input, node *env) {
-    if (nullp(input) or ncalls > callmax)
+    if (nullp(input))
         setflag();
     if (consp(input))
         input = eval_list(input, env);
@@ -1409,8 +1451,12 @@ void REPL(char *input) {
 
     mark_expr(l, PERMANENT);
 
+    node *top_env = newnode(ENV);
+    top_env->bindings = NULLPTR;
+
     forlist (sexp in l) {
         pr(car(sexp));
+        top_env->bindings = NULLPTR;
         val = eval(car(sexp), top_env);
         pr(val);
         mark_expr(globals, PERMANENT);

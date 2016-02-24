@@ -1,10 +1,10 @@
 /* fl-device.c */
 void pr(node *cell);
-void addInt(long i);
+void addInt(long long i);
 void addString(char *s);
-void addValue(char *s, long i);
+void addValue(char *s, long long i);
 char *scopy(char *s1, const char *s2);
-long stoi(const char *c);
+long long stoi(const char *c);
 int slen(char *s);
 void prStats(void);
 char *readFile(char *fileName);
@@ -37,8 +37,8 @@ node *cons(node *head, node *tail);
 node *pair(node *head, node *tail);
 node *func(node *(*fn)(node *, node *), enum ltype type);
 node *lambda(node *args, node *sexp);
-node *integer(long num);
-node *newcontext(node *bindings);
+node *integer(long long num);
+node *newcontext(node *bindings, node *top);
 node *lastcell(node *list);
 node *append(node *list, node *obj);
 node *concat(node *l1, node *l2);

@@ -2,7 +2,6 @@ node *tee;
 node *nil;
 node *NULLPTR;
 node *globals;
-node *top_env;
 node *history;
 node *freelist;
 string *stringfreelist;
