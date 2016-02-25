@@ -173,6 +173,11 @@ node *newcontext(node *bindings, node *top) {
     return env;
 }
 
+void clear_bindings(node *env) {
+    env->bindings = NULLPTR;
+    env->top = NULLPTR;
+}
+
 //
 // list creation/access
 //
@@ -583,7 +588,7 @@ node *el_id(node *args, node *env) {
 //
 // init
 //
-void init_lisp() {
+node *init_lisp(void) {
     allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
@@ -639,6 +644,12 @@ void init_lisp() {
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
+
+    node *top_env = newnode(ENV);
+    top_env->bindings = NULLPTR;
+    top_env->top = NULLPTR;
+    top_env->marked = PERMANENT;
+    return top_env;
 }
 
 //
@@ -817,24 +828,18 @@ node *eval(node *input, node *env) {
 //
 void REPL(char *input) {
 
-    init_lisp();
+    node *top_env = init_lisp(), *val, *l;
 
     mark_expr(globals, PERMANENT);
     mark_expr(NULLPTR, PERMANENT);
 
-    node *val;
-
-    node *l = parse_string(&input);
+    l = parse_string(&input);
 
     mark_expr(l, PERMANENT);
 
-    node *top_env = newnode(ENV);
-    top_env->bindings = NULLPTR;
-    top_env->marked = PERMANENT;
-
     forlist (sexp in l) {
         pr(car(sexp));
-        top_env->bindings = NULLPTR;
+        clear_bindings(top_env);
         val = eval(car(sexp), top_env);
         pr(val);
         mark_expr(globals, PERMANENT);

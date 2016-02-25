@@ -213,12 +213,12 @@
            (any pred (cdr lst)))))
 
 (rember 'me '(please remove me))
-(length '(0 1 2 3 4 5 6 7 8 9))
-(pow 2 3)
-
-
-(copy-list '(a b c d e f g))
-(every numberp '(1 a))
-(copy-tree '((a b c d) (e f g) h i j))
-(last '(1 2 3 4))
+(reverse '(1 2 3 4 5 6 7))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
 (reverse2 '(1 2 3 4 5 6 7 8 9))
+
+(nfibs 10)
+(reverse '(1 2 3 4 5 6 7 8 9))
+(append '(1 2 3 4) '(5 6 7 8 9))
+(pow 234 0)
+(nth '(1 2 3 4 5) 1)
