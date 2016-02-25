@@ -315,7 +315,7 @@ int main(int argc, char *argv[]) {
     // open the device
     //
     e_open(&dev, 0, 0, rows, cols);
-
+    e_reset_group(&dev);
 
     //
     // Write the ememory data structure to device memory
@@ -327,7 +327,6 @@ int main(int argc, char *argv[]) {
     //
     clear_done_flags(&dev, rows, cols);
     e_load_group("./fl-device.srec", &dev, 0, 0, rows, cols, E_TRUE);
-
 
     //
     // Poll the device waiting for all cores to finish
@@ -342,6 +341,13 @@ int main(int argc, char *argv[]) {
     //
     // Close and finalize the device
     //
-    e_close(&dev);
+    if (e_close(&dev)) {
+        printf( "\nERROR: Can't close connection to Epiphany device!\n\n");
+        exit(1);
+    }
+    if (e_free(&emem)) {
+        printf( "\nERROR: Can't release Epiphany DRAM!\n\n");
+        exit(1);
+    }
     e_finalize();
 }

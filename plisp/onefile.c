@@ -218,9 +218,7 @@ node *node_malloc(void);
 void node_free(node *n);
 void pushFree(stack *ptr, stack **stk);
 stack *popFree(stack **stk);
-void mark_expr(node *o, unsigned char persistence);
 void release_node(node *o);
-void free_unmarked(node **allocated);
 node *newnode(enum ltype type);
 node *sym(char *val);
 node *cons(node *head, node *tail);
@@ -229,6 +227,7 @@ node *func(node *(*fn)(node *, node *), enum ltype type);
 node *lambda(node *args, node *sexp);
 node *integer(long long num);
 node *newcontext(node *bindings, node *top);
+void clear_bindings(node *env);
 node *lastcell(node *list);
 node *append(node *list, node *obj);
 node *concat(node *l1, node *l2);
@@ -282,7 +281,7 @@ node *el_and(node *args, node *env);
 node *el_not(node *args, node *env);
 node *el_setflag(node *args, node *env);
 node *el_id(node *args, node *env);
-void init_lisp(void);
+node *init_lisp(void);
 int getChar(char **s);
 int ungetChar(char **s);
 char *getToken(char **s, char *token);
@@ -767,6 +766,11 @@ node *newcontext(node *bindings, node *top) {
     return env;
 }
 
+void clear_bindings(node *env) {
+    env->bindings = NULLPTR;
+    env->top = NULLPTR;
+}
+
 //
 // list creation/access
 //
@@ -869,11 +873,22 @@ node *make_env(node *vars, node *vals, node *env) {
 // builtins
 //
 node *el_car (node *args, node *env) {
-    return car(nextarg(&args));
+    node *arg = nextarg(&args), *head;
+    if (consp(arg))
+        head = car(arg);
+    else
+        setflag();
+    return head;
 }
 
 node *el_cdr (node *args, node *env) {
-    node *tail = cdr(nextarg(&args));
+    node *arg = nextarg(&args), *tail;
+    if (consp(arg))
+        tail = cdr(arg);
+    else if (nilp(arg))
+        tail = nil;
+    else
+        setflag();
     return nullp(tail)? nil : tail;
 }
 
@@ -1177,7 +1192,7 @@ node *el_id(node *args, node *env) {
 //
 // init
 //
-void init_lisp() {
+node *init_lisp(void) {
     allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
@@ -1233,6 +1248,12 @@ void init_lisp() {
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
+
+    node *top_env = newnode(ENV);
+    top_env->bindings = NULLPTR;
+    top_env->top = NULLPTR;
+    top_env->marked = PERMANENT;
+    return top_env;
 }
 
 //
@@ -1411,18 +1432,13 @@ node *eval(node *input, node *env) {
 //
 void REPL(char *input) {
 
-    init_lisp();
+    node *top_env = init_lisp(), *val, *l;
 
-    node *val;
-
-    node *l = parse_string(&input);
-
-    node *top_env = newnode(ENV);
-    top_env->bindings = NULLPTR;
+    l = parse_string(&input);
 
     forlist (sexp in l) {
         pr(car(sexp));
-        top_env->bindings = NULLPTR;
+        clear_bindings(top_env);
         val = eval(car(sexp), top_env);
         pr(val);
     }

@@ -904,11 +904,22 @@ node *make_env(node *vars, node *vals, node *env) {
 // builtins
 //
 node *el_car (node *args, node *env) {
-    return car(nextarg(&args));
+    node *arg = nextarg(&args), *head;
+    if (consp(arg))
+        head = car(arg);
+    else
+        setflag();
+    return head;
 }
 
 node *el_cdr (node *args, node *env) {
-    node *tail = cdr(nextarg(&args));
+    node *arg = nextarg(&args), *tail;
+    if (consp(arg))
+        tail = cdr(arg);
+    else if (nilp(arg))
+        tail = nil;
+    else
+        setflag();
     return nullp(tail)? nil : tail;
 }
 
