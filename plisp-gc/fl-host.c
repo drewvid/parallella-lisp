@@ -235,7 +235,10 @@ ememory *init_ememory(int argc, char *argv[], int rows, int cols) {
 // Write the ememory data structure to device memory
 //
 void write_ememory(e_mem_t *emem, ememory *memory) {
-    e_alloc(emem, _BufOffset, sizeof(ememory));
+    if (E_OK != e_alloc(emem, _BufOffset, sizeof(ememory))) {
+        fprintf(stderr, "\nERROR: Can't allocate Epiphany DRAM!\n\n");
+        exit(1);
+    }
     e_write(emem, 0, 0, 0x0, memory, sizeof(ememory));
 }
 
@@ -293,7 +296,7 @@ void process_ememory(e_mem_t *emem, ememory *memory, int rows, int cols) {
 // Lets go!
 //
 int main(int argc, char *argv[]) {
-    int rows, cols;
+    int rows, cols, result;
     char *code, filename[64];
     e_platform_t platform;
     e_epiphany_t dev;
@@ -302,8 +305,13 @@ int main(int argc, char *argv[]) {
     //
     // init the device and get platform data
     //
-    e_init(NULL);
-    e_reset_system();
+    if (E_OK != e_init(NULL)) {
+        fprintf(stderr, "\nERROR: epiphinay initialization failed!\n\n");
+        exit(1);
+    }
+    if (E_OK != e_reset_system() ) {
+        fprintf(stderr, "\nWARNING: epiphinay system rest failed!\n\n");
+    }
     e_get_platform_info(&platform);
 
     rows = platform.rows;
@@ -314,7 +322,10 @@ int main(int argc, char *argv[]) {
     //
     // open the device
     //
-    e_open(&dev, 0, 0, rows, cols);
+    if (E_OK != e_open(&dev, 0, 0, rows, cols)) {
+        fprintf(stderr, "\nERROR: Can't establish connection to Epiphany device!\n\n");
+        exit(1);
+    }
     e_reset_group(&dev);
 
     //
@@ -326,7 +337,11 @@ int main(int argc, char *argv[]) {
     // Load the code
     //
     clear_done_flags(&dev, rows, cols);
-    e_load_group("./fl-device.srec", &dev, 0, 0, rows, cols, E_TRUE);
+    result = e_load_group("./fl-device.srec", &dev, 0, 0, rows, cols, E_TRUE);
+    if (result == E_ERR) {
+        printf("Error loading Epiphany program.\n");
+        exit(1);
+    }
 
     //
     // Poll the device waiting for all cores to finish
