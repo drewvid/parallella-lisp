@@ -312,7 +312,14 @@ int main(int argc, char *argv[]) {
     if (E_OK != e_reset_system() ) {
         fprintf(stderr, "\nWARNING: epiphinay system rest failed!\n\n");
     }
-    e_get_platform_info(&platform);
+
+    fprintf(stderr, "Getting platform info\n");
+    if ( E_OK != e_get_platform_info(&platform) ) {
+        fprintf(stderr, "Failed to get Epiphany platform info\n");
+        exit(1);
+    }
+    fprintf(stderr, "Platform version: %s, HAL version 0x%08x\n",
+            platform.version, platform.hal_ver);
 
     rows = platform.rows;
     cols = platform.cols;

@@ -213,12 +213,12 @@
            (any pred (cdr lst)))))
 
 (rember 'me '(please remove me))
-(reverse2 '(1 2 3 4 5 6 7 8 9))
-(testfun 101)
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-
-(pow 2 3)
-(nthcdr '(1 2 3 4 5) 2)
-(last '(1 2 3 4))
 (nth '(1 2 3 4 5) 1)
-(copy-list '(a b c d e f g))
+(nfibs 10)
+(filter numberp '(1 2 3 a b c 4 5 6))
+(any numberp '(a b))
+(last '(1 2 3 4))
+(subst 'me 'you '(a list with me))
+(every numberp '(1 a))
+(reverse '(1 2 3 4 5 6 7 8 9))
+
