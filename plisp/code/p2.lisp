@@ -73,12 +73,12 @@
 (= 2 2)
 
 (equal (car (cdr '(a b))) 'a)
-'(a b c)
-(cond ( nil 'b) (t 'c))
-(car '(a b c))
-(equal nil nil)
-(cdr xx)
-
 'a
-(equal t t)
-(equal (car '(a b)) 'a)
+(cons 'a '(b c))
+(equal nil nil)
+(car xx)
+(cond ( nil (quote b)) (t (quote c)))
+(ff '(a b) (cdr '(c d)))
+'(a b c)
+(atom 'a)
+(cond ((atom 'a) 'b) (t 'c))

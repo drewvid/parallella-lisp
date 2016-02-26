@@ -333,7 +333,6 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\nERROR: Can't establish connection to Epiphany device!\n\n");
         exit(1);
     }
-    e_reset_group(&dev);
 
     //
     // Write the ememory data structure to device memory
@@ -349,6 +348,7 @@ int main(int argc, char *argv[]) {
         printf("Error loading Epiphany program.\n");
         exit(1);
     }
+    e_start_group(&dev);
 
     //
     // Poll the device waiting for all cores to finish
