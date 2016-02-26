@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-
-(append '(1 2 3 4) '(5 6 7 8 9))
-(multiins 'one 'two '(one three one three one three one three))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(intersect '(a b c d e f) '(d e f))
-(list-ref '(1 2 3 4) 1)
-(every numberp '(1 2))
-(testfun 13)
+(rember 'me '(please remove me))
+(any numberp '(a b))
 (mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(member 'me '(please remove me))
+
+(pow 234 0)
+(append '(1 2 3 4) '(5 6 7 8 9))
+(list-ref '(1 2 3 4) 1)
+(last '(1 2 3 4))
+(mapcar 'atom (list 1 '(2) foo t nil))
+(intersect '(a b c d e f) '(d e f))

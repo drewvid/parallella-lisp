@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(every numberp '(1 2))
-
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(any numberp '(1 a))
-(member 'me '(please remove me))
-(testfun 101)
-(nth '(1 2 3 4 5) 1)
 (reverse '(1 2 3 4 5 6 7 8 9))
-(subst 'me 'you '(a list with me))
+(every numberp '(1 a))
+(rember 'me '(please remove me))
+
+(intersect '(a b c d e f) '(d e f))
+(any numberp '(1 a))
+(length '(0 1 2 3 4 5 6 7 8 9))
+(last '(1 2 3 4))
 (nfibs 10)
+(reverse2 '(1 2 3 4 5 6 7 8 9))

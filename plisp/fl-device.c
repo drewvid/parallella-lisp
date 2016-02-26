@@ -245,7 +245,7 @@ void coreInit(int argc, char *argv[]) {
     if (argc == 2)
         code = readFile(argv[1]);
     else
-        code = readFile("code/p2.lisp");
+        code = readFile("testfuncs.lisp");
 
     scopy(memory->data[id].code, code);
 
