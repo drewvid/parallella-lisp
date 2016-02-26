@@ -232,7 +232,7 @@ node *el_plus(node *args, node *env);
 node *el_minus(node *args, node *env);
 node *el_times(node *args, node *env);
 node *el_divide(node *args, node *env);
-void init_lisp(void);
+node *init_lisp(void);
 void nl(void);
 void prpair(node *l);
 void print(node *l);
@@ -408,6 +408,11 @@ node *newcontext(node *bindings) {
     node *env = newnode(ENV);
     ebindings(env) = bindings;
     return env;
+}
+
+void clear_bindings(node *env) {
+    env->bindings = NULLPTR;
+    env->top = NULLPTR;
 }
 
 //
@@ -716,7 +721,7 @@ node *el_divide(node *args, node *env) {
 //
 // init
 //
-void init_lisp() {
+node *init_lisp(void) {
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;
     top_env = NULLPTR;
@@ -752,7 +757,11 @@ void init_lisp() {
     tee = newnode(TEE);
     add_pair(sym("t"), tee, &globals);
     add_pair(sym("nil"), nil, &globals);
-    top_env = globals;
+
+    node *top_env = newnode(ENV);
+    top_env->bindings = NULLPTR;
+    top_env->top = NULLPTR;
+    return top_env;
 }
 
 //
@@ -876,7 +885,7 @@ int is_valid_int( char *str) {
 node *makeNode(node *n) {
     if (n->type is SYM) {
         char *name = n->name->s;
-        if (is_valid_int(name)) 
+        if (is_valid_int(name))
             return integer(stoi(name));
     }
     return n;
@@ -982,16 +991,15 @@ node *eval(node *input, node *env) {
 
 void REPL(char *input) {
 
-    init_lisp();
+    node *top_env = init_lisp(), *val, *l;
 
-    node *val;
-
-    node *l = parse_string(&input); nl();
+    l = parse_string(&input); nl();
 
     forlist (sexp in l) {
         appendString ("> ");
         print(car(sexp));
         appendString("\n");
+        clear_bindings(top_env);
         val = eval(car(sexp), top_env);
         print(val);
         appendString("\n");

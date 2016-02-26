@@ -56,7 +56,7 @@ node *el_plus(node *args, node *env);
 node *el_minus(node *args, node *env);
 node *el_times(node *args, node *env);
 node *el_divide(node *args, node *env);
-void init_lisp(void);
+node *init_lisp(void);
 void nl(void);
 void prpair(node *l);
 void print(node *l);
