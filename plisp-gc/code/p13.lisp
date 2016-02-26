@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(last '(1 2 3 4))
-(sum-to-n 100)
 
-(every numberp '(1 a))
-(length '(0 1 2 3 4 5 6 7 8 9))
-(reverse '(1 2 3 4 5 6 7))
-(multiins 'one 'two '(one three one three one three one three))
+(pow 234 0)
+(filter numberp '(1 2 3 a b c 4 5 6))
+(every numberp '(1 2))
+
+(testfun 13)
+(any numberp '(a b))
+(copy-list '(a b c d e f g))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
 (pow 2 3)
-(subst 'me 'you '(a list with me))
-(copy-tree '((a b c d) (e f g) h i j))
