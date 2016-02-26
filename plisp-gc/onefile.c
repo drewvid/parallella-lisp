@@ -207,7 +207,7 @@ void coreInit(int argc, char *argv[]);
 void nl(void);
 void prpair(node *l);
 void print(node *l);
-void setflag(void);
+void setflag(char *message);
 string *smalloc(void);
 string *string_malloc(void);
 void string_free(string *n);
@@ -419,11 +419,13 @@ void coreInit(int argc, char *argv[]) {
 // Print memory stats and store a pointer to the history list.
 // Put the processor in idle mode
 //
-void setflag() {
+void setflag(char *message) {
     unsigned *d;
 
-    if(nnodes < FREEOBJECT && nnames < FREENAME)
+    if(nnodes < FREEOBJECT && nnames < FREENAME) {
         prStats();
+        addString(message);
+    }
 
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
@@ -602,10 +604,11 @@ void print(node *l) {
 //
 // Print out the history list and exit
 //
-void setflag() {
+void setflag(char *message) {
 
     if(nnodes < FREEOBJECT && nnames < FREENAME) {
         prStats();
+        addString(message);
         forlist (ptr in history) {
             print(car(ptr));
             printf("\n");
@@ -615,6 +618,7 @@ void setflag() {
         printf("nnodes %d\n", nnodes);
         printf("nnames %d\n", nnames);
         printf("nstrings %d\n", nstrings);
+        printf("%s\n", message);
     }
 
     exit(0);
@@ -629,7 +633,7 @@ void setflag() {
 string *smalloc(void) {
     if (stringfreelist != NULL)
         return (string *)popFree((stack **)(&stringfreelist));
-    setflag();
+    setflag("ERROR in smalloc: NULL stringfreelist");
     return NULL;
 }
 
@@ -648,7 +652,7 @@ void string_free(string *n) {
 namestr *nmalloc(void) {
     if (namefreelist != NULL)
         return (namestr *)popFree((stack **)(&namefreelist));
-    setflag();
+    setflag("ERROR in nmalloc: NULL namefreelist");
     return NULL;
 }
 
@@ -667,7 +671,7 @@ void name_free(namestr *n) {
 node *omalloc(void) {
     if (freelist != NULL)
         return (node *)popFree((stack **)(&freelist));
-    setflag();
+    setflag("ERROR in omalloc: NULL freelist");
     return NULL;
 }
 
@@ -909,7 +913,7 @@ node *el_car (node *args, node *env) {
     if (consp(arg))
         head = car(arg);
     else
-        setflag();
+        setflag("ERROR in car: not a list");
     return head;
 }
 
@@ -920,7 +924,7 @@ node *el_cdr (node *args, node *env) {
     else if (nilp(arg))
         tail = nil;
     else
-        setflag();
+        setflag("ERROR in cdr: not a list");
     return nullp(tail)? nil : tail;
 }
 
@@ -1212,7 +1216,7 @@ node *el_not(node *args, node *env) {
 
 node *el_setflag(node *args, node *env) {
     pr(args);
-    setflag();
+    setflag("WARNING: setflag called from lisp");
     return nil;
 }
 
@@ -1451,7 +1455,7 @@ node *eval_list(node *sexp, node *env) {
 
 node *eval(node *input, node *env) {
     if (nullp(input))
-        setflag();
+        setflag("ERROR in eval: NULLPTR");
     if (consp(input))
         input = eval_list(input, env);
     else if (symp(input))
@@ -1516,7 +1520,7 @@ int main(int argc, char *argv[]) {
     //
     // Print stats and exit
     //
-    setflag();
+    setflag("Exited normally!");
 
     return 0;
 }

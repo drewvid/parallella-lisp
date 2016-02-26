@@ -1,4 +1,6 @@
+import random
 
+setup="""
 (defun nfibs (n)
     (if (< n 2) n
         (+ 0 (nfibs (- n 1)) (nfibs (- n 2)))
@@ -211,14 +213,51 @@
   (and (consp lst)
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
+"""
 
-(nth '(1 2 3 4 5) 1)
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(any numberp '(a b))
-(nthcdr '(1 2 3 4 5) 2)
-
+code = """
+(pow 2 3)
+(pow 234 0)
+(nfibs 10)
+(testfun 13)
+(testfun 101)
+(sum-to-n 100)
+(gauss 100)
 (rember 'me '(please remove me))
+(multiins 'one 'two '(one three one three one three one three))
 (member 'me '(please remove me))
-(last '(1 2 3 4))
+(intersect '(a b c d e f) '(d e f))
+(length '(0 1 2 3 4 5 6 7 8 9))
+(subst 'me 'you '(a list with me))
 (mapcar 'atom (list 1 '(2) foo t nil))
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(reverse '(1 2 3 4 5 6 7))
+(nth '(1 2 3 4 5) 1)
+(nthcdr '(1 2 3 4 5) 2)
+(list-ref '(1 2 3 4) 1)
+(last '(1 2 3 4))
+(filter numberp '(1 2 3 a b c 4 5 6))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+(reverse '(1 2 3 4 5 6 7 8 9))
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+(append '(1 2 3 4) '(5 6 7 8 9))
+(copy-list '(a b c d e f g))
+(copy-tree '((a b c d) (e f g) h i j))
 (any numberp '(1 a))
+(any numberp '(a b))
+(every numberp '(1 2))
+(every numberp '(1 a))
+"""
+
+if __name__ == '__main__':
+
+    lines = code.split("\n");
+
+    for i in range(16):
+        sample = random.sample(lines, 10)
+        fp = open("p" + str(i) + ".lisp", "w")
+        fp.write(setup + "\n")
+        for line in sample:
+            fp.write(line + "\n")
+        fp.close()

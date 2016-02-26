@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nth '(1 2 3 4 5) 1)
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(any numberp '(a b))
-(nthcdr '(1 2 3 4 5) 2)
+(pow 2 3)
+(subst 'me 'you '(a list with me))
 
-(rember 'me '(please remove me))
-(member 'me '(please remove me))
-(last '(1 2 3 4))
-(mapcar 'atom (list 1 '(2) foo t nil))
 (any numberp '(1 a))
+(sum-to-n 100)
+
+(reverse '(1 2 3 4 5 6 7))
+(every numberp '(1 a))
+(copy-list '(a b c d e f g))
+(filter numberp '(1 2 3 a b c 4 5 6))
