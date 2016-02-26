@@ -36,4 +36,4 @@
 (label xx '(c d))
 (car xx)
 (define n 5) 
-(loop (> n 0) (printl hello) (define n (- n 1)) (terpri 1) ) 
+(loop (> n 0) (print hello) (define n (- n 1)) (terpri 1) ) 

@@ -16,6 +16,7 @@ node *func(node *(*fn)(node *, node *), enum ltype type);
 node *lambda(node *args, node *sexp);
 node *integer(int num);
 node *newcontext(node *bindings);
+void clear_bindings(node *env);
 node *lastcell(node *list);
 node *append(node *list, node *obj);
 node *concat(node *l1, node *l2);

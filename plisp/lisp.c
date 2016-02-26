@@ -4,7 +4,7 @@
 string *smalloc(void) {
     if (stringfreelist != NULL)
         return (string *)popFree((stack **)(&stringfreelist));
-    setflag();
+    setflag("ERROR in smalloc: NULL stringfreelist");
     return NULL;
 }
 
@@ -23,7 +23,7 @@ void string_free(string *n) {
 namestr *nmalloc(void) {
     if (namefreelist != NULL)
         return (namestr *)popFree((stack **)(&namefreelist));
-    setflag();
+    setflag("ERROR in nmalloc: NULL namefreelist");
     return NULL;
 }
 
@@ -42,7 +42,7 @@ void name_free(namestr *n) {
 node *omalloc(void) {
     if (freelist != NULL)
         return (node *)popFree((stack **)(&freelist));
-    setflag();
+    setflag("ERROR in omalloc: NULL freelist");
     return NULL;
 }
 
@@ -72,15 +72,6 @@ stack *popFree(stack **stk) {
     *stk = (*stk)->next;
     item->next = NULL;
     return item;
-}
-
-void release_node(node *o) {
-    if ( nullp(o) ) return;
-
-    if(symp(o)) name_free(o->name);
-    else if (subrp(o) or fsubrp(o)) name_free(o->fname);
-
-    node_free(o);
 }
 
 //
@@ -255,7 +246,7 @@ node *el_car (node *args, node *env) {
     if (consp(arg))
         head = car(arg);
     else
-        setflag();
+        setflag("ERROR in car: not a list");
     return head;
 }
 
@@ -266,7 +257,7 @@ node *el_cdr (node *args, node *env) {
     else if (nilp(arg))
         tail = nil;
     else
-        setflag();
+        setflag("ERROR in cdr: not a list");
     return nullp(tail)? nil : tail;
 }
 
@@ -558,7 +549,7 @@ node *el_not(node *args, node *env) {
 
 node *el_setflag(node *args, node *env) {
     pr(args);
-    setflag();
+    setflag("WARNING: setflag called from lisp");
     return nil;
 }
 
@@ -797,7 +788,7 @@ node *eval_list(node *sexp, node *env) {
 
 node *eval(node *input, node *env) {
     if (nullp(input))
-        setflag();
+        setflag("ERROR in eval: NULLPTR");
     if (consp(input))
         input = eval_list(input, env);
     else if (symp(input))

@@ -125,11 +125,13 @@ void coreInit(int argc, char *argv[]) {
 // Print memory stats and store a pointer to the history list.
 // Put the processor in idle mode
 //
-void setflag() {
+void setflag(char *message) {
     unsigned *d;
 
-    if(nnodes < FREEOBJECT && nnames < FREENAME)
+    if(nnodes < FREEOBJECT && nnames < FREENAME) {
         prStats();
+        addString(message);
+    }
 
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
@@ -308,10 +310,11 @@ void print(node *l) {
 //
 // Print out the history list and exit
 //
-void setflag() {
+void setflag(char *message) {
 
     if(nnodes < FREEOBJECT && nnames < FREENAME) {
         prStats();
+        addString(message);
         forlist (ptr in history) {
             print(car(ptr));
             printf("\n");
@@ -321,6 +324,7 @@ void setflag() {
         printf("nnodes %d\n", nnodes);
         printf("nnames %d\n", nnames);
         printf("nstrings %d\n", nstrings);
+        printf("%s\n", message);
     }
 
     exit(0);
@@ -361,7 +365,7 @@ int main(int argc, char *argv[]) {
     //
     // Print stats and exit
     //
-    setflag();
+    setflag("Exited normally!");
 
     return 0;
 }
