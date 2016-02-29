@@ -109,6 +109,50 @@ In addition the following primitives are included on top of the original 10.
     not
     setflag
 
+## The Y-Combinator
+
+The directory plisp-ycomb, contains a version of plisp that will execute the y-combinator. For things to work I had to add one c function:
+
+    node *bind_variables(node *expr, node *env)
+
+This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived here:
+
+    http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/
+
+The plisp version along with an example looks like this:
+
+    (defun YCombinator (f)
+    	(funcall 	(lambda (x)
+                		(funcall f 	(lambda (y)
+                                		(funcall (funcall x x) y)
+                                	)
+                		)
+                	)
+               		(lambda (x)
+                   		(funcall f 	(lambda (y)
+                        				(funcall (funcall x x) y)
+                        			)
+                   		)
+                   	)
+    	)
+    )
+    
+    (funcall
+    	(YCombinator
+    		(lambda (f)
+    			(lambda (n)
+    				(if (eq n 0)
+                  		1
+                		(* n (funcall f (1- n)))
+                	)
+                )
+            )
+        )
+     	6
+    )
+
+The file, ycomb.lisp, cotains the the above code along with a modified version of the code listed in the blog post on how to derive the function to work with emacs LISP.
+
 ## Generating the code for each core and the examples
 
 The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP. The files generated are named p0.lisp to p15.lisp. If you want to change the filenames then you will have to edit fl-device.c and recompile. Python is also used to generate a single file which can be ported easily to another machine for testing and development. The code isn’t documented because I intend to do so with a series of blog posts towards the end of February of this year (2016).
