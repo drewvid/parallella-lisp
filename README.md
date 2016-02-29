@@ -117,7 +117,7 @@ The directory plisp-ycomb, contains a version of plisp that will execute the y-c
 
 This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived here:
 
-    [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/)
+[Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/)
 
 The plisp version along with an example looks like this:
 
