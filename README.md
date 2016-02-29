@@ -149,7 +149,15 @@ The plisp version along with an example looks like this:
      	6
     )
 
-The file, ycomb.lisp, cotains the the above code along with a modified version of the code listed in the blog post on how to derive the function to work with emacs LISP.
+The file, ycomb.lisp, cotains the the above code along with a modified version of the code listed in the blog post on how to derive the function to work with emacs LISP. To see everything working, do this in the plisp-ycomb directory:
+
+    make
+    ./fl
+    or
+    make build
+    ./plisp ycomb.lisp
+
+./fl runs the local version and ./plisp runs the code on the parallella 16.
 
 ## Generating the code for each core and the examples
 
