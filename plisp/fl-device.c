@@ -29,13 +29,14 @@ void addString(char *s) {
 }
 
 void addValue(char *s, long long i) {
-    addString(s); addInt(i);
+    addString(s);
+    addInt(i);
 }
 
 //
 // local version of strcpy
 //
-char *scopy(char *s1, const char *s2) {
+char *scpy(char *s1, const char *s2) {
     char *s = s1;
     while ((*s++ = *s2++) != '\0')
         ;
@@ -50,8 +51,10 @@ long long stoi(const char *c)
 {
     long long value = 0;
     int sign = 1;
-    if( *c == '+' || *c == '-' ) {
-        if( *c == '-' ) sign = -1;
+    if ( *c == '+' || *c == '-' ) {
+        if ( *c == '-' ) {
+            sign = -1;
+        }
         c++;
     }
     while (isdigit(*c)) {
@@ -66,25 +69,28 @@ long long stoi(const char *c)
 // length of a string
 //
 int slen(char *s) {
-   int c = 0;
-   while(*(s+c))
-      c++;
-   return c;
+    int c = 0;
+    while (*(s+c)) {
+        c++;
+    }
+    return c;
 }
 
 //
-// add memory stats to the history list
+// Save global variables
 //
-void prStats() {
-    addValue("id: ", id);
-    addValue("memory: ", sizeof(ememory));
-    addValue("node size: ", sizeof(node));
-    addValue("nnodes: ", nnodes);
-    addValue("nodemem: ", nodemem);
-    addValue("nnames: ", nnames);
-    addValue("namemem: ", namemem);
-    addValue("nstrings: ", nstrings);
-    addValue("stringmem: ", stringmem);
+void saveGlobals(char *message) {
+    edata *data = &memory->data[id];
+    scpy(data->message, message);
+    data->id = id;
+    data->ememory_size = sizeof(ememory);
+    data->node_size = sizeof(node);
+    data->nnodes = nnodes;
+    data->nodemem = nodemem;
+    data->nnames = nnames;
+    data->namemem = namemem;
+    data->nstrings = nstrings;
+    data->stringmem = stringmem;
 }
 
 #if EPIPHANY
@@ -93,32 +99,25 @@ void prStats() {
 // get the core ID
 //
 int coreID(unsigned int *row, unsigned int *col) {
-
     e_coreid_t coreid;
-
     coreid = e_get_coreid();
     coreid = coreid - e_group_config.group_id;
     *row = (coreid >> 6) & 0x3f;
     *col = coreid & 0x3f;
-
-    return((*row * 4) + *col);
+    return ((*row * 4) + *col);
 }
 
 //
 // Initilaize core memory
 //
 void coreInit(int argc, char *argv[]) {
-
     memory = (ememory *)(BUF_ADDRESS);
-
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
-
     freelist = freeNodeArray;
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
-
 }
 
 //
@@ -127,19 +126,12 @@ void coreInit(int argc, char *argv[]) {
 //
 void setflag(char *message) {
     unsigned *d;
-
-    if(nnodes < FREEOBJECT && nnames < FREENAME) {
-        prStats();
-        addString(message);
-    }
-
+    saveGlobals(message);
     memory->data[id].NULLPTR = NULLPTR;
     memory->data[id].history = history;
     memory->data[id].finished = 1;
-
     d = (unsigned *) 0x7000;
     (*(d)) = 0x00000001;
-
     __asm__ __volatile__("idle");
 }
 
@@ -150,17 +142,20 @@ void setflag(char *message) {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
-    if(!file) {
+    if (!file) {
         fprintf(stderr, "%s\n", "file not found");
         exit(-1);
     }
     string *code;
     size_t n = 0;
     int c;
-    if (file == NULL) return NULL;
+    if (file == NULL) {
+        return NULL;
+    }
     code = smalloc();
-    while ((c = fgetc(file)) != EOF)
+    while ((c = fgetc(file)) != EOF) {
         code->s[n++] = (char)c;
+    }
     code->s[n] = '\0';
     return code->s;
 }
@@ -218,11 +213,9 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 // Generate a core ID for testing
 //
 int coreID(unsigned int *row, unsigned int *col) {
-
     *row = 1;
     *col = 1;
-
-    return((*row * 4) + *col);
+    return ((*row * 4) + *col);
 }
 
 //
@@ -230,31 +223,27 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 void coreInit(int argc, char *argv[]) {
     char *code;
-
     memory = (ememory *)calloc(1, sizeof(ememory));
-    if(!memory) {
+    if (!memory) {
         fprintf(stderr, "%s\n", "out of memory in init_ememory");
         exit(-1);
     }
     freeStringArray = &memory->data[id].freeStringArray[0];
     freeNodeArray = &memory->data[id].freeNodeArray[0];
     freeNameArray = &memory->data[id].freeNameArray[0];
-
     freelist = freeNodeArray;
     stringfreelist = freeStringArray;
     namefreelist = freeNameArray;
-
-    if (argc == 2)
+    if (argc == 2) {
         code = readFile(argv[1]);
-    else
-        code = readFile("testfuncs.lisp");
-
-    scopy(memory->data[id].code, code);
-
+    }
+    else {
+        code = readFile("code/p2.lisp");
+    }
+    scpy(memory->data[id].code, code);
     createFreelist(memory, 4, 4);
     createNameFreelist(memory, 4, 4);
     createStringFreelist(memory, 4, 4);
-
 }
 
 //
@@ -274,59 +263,80 @@ void prpair(node *l) {
 }
 
 void print(node *l) {
-    if (nullp(l))
+    if (nullp(l)) {
         printf(" NULL ");
-    else if (teep(l))
-         printf(" t ");
-    else if (nilp(l))
-         printf(" nil ");
-    else if (symp(l)) // symbol
+    }
+    else if (teep(l)) {
+        printf(" t ");
+    }
+    else if (nilp(l)) {
+        printf(" nil ");
+    }
+    else if (symp(l)) { // symbol
         printf(" %s ", name(l));
-    else if (intp(l)) // integer
+    }
+    else if (intp(l)) { // integer
         printf(" %lld ", ival(l));
-    else if(lambdap(l)) { // lambda expression
+    }
+    else if (lambdap(l)) { // lambda expression
         printf(" #lambda ");
         print(largs(l));
         print(lbody(l));
-    } else if (subrp(l))
+    } else if (subrp(l)) {
         printf(" subr ");
-    else if (fsubrp(l))
+    }
+    else if (fsubrp(l)) {
         printf(" fsubr ");
-    else if (pairp(l)) // pair
+    }
+    else if (pairp(l)) { // pair
         prpair(l);
+    }
     else if (consp(l)) {
-        if (not nullp(cdr(l)) and not consp(cdr(l))) // untyped dotted pair
+        if (not nullp(cdr(l)) and not consp(cdr(l))) { // untyped dotted pair
             prpair(l);
+        }
         else { // list
             printf("( ");
-            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr))
+            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr)) {
                 print(car(ptr));
+            }
             printf(" )");
         }
-    } else
+    } else {
         printf(" Something went wrong \n");
+    }
+}
+
+//
+// Print out global variables
+//
+void prGlobals(ememory *memory, int id) {
+    edata *data = &memory->data[id];
+    printf("\n");
+    printf("processor id: \t\t%d\n", data->id);
+    printf("memory: \t\t%d\n", data->ememory_size);
+    printf("node size: \t\t%d\n", data->node_size);
+    printf("nnodes: \t\t%d\n", data->nnodes);
+    printf("nodemem: \t\t%d\n", data->nodemem);
+    printf("nnames: \t\t%d\n", data->nnames);
+    printf("namemem: \t\t%d\n", data->namemem);
+    printf("nstrings: \t\t%d\n", data->nstrings);
+    printf("stringmem: \t\t%d\n", data->stringmem);
+    printf("setflag message: \t%s\n", data->message);
 }
 
 //
 // Print out the history list and exit
 //
 void setflag(char *message) {
-
-    if(nnodes < FREEOBJECT && nnames < FREENAME) {
-        prStats();
-        addString(message);
+    saveGlobals(message);
+    if (nnodes < FREEOBJECT and nnames < FREENAME) {
         forlist (ptr in history) {
             print(car(ptr));
             printf("\n");
         }
-    } else {
-        printf("OUT OF MEMORY\n");
-        printf("nnodes %d\n", nnodes);
-        printf("nnames %d\n", nnames);
-        printf("nstrings %d\n", nstrings);
-        printf("%s\n", message);
     }
-
+    prGlobals(memory, id);
     exit(0);
 }
 
@@ -341,31 +351,25 @@ void setflag(char *message) {
 //
 int main(int argc, char *argv[]) {
     unsigned int row, col;
-
     //
     // get the core id
     //
     id = coreID(&row, &col);
-
     //
     // Initialize the core
     //
     coreInit(argc, argv);
-
     //
     // load the code
     //
     input = &memory->data[id].code[0];
-
     //
     // Read, Eval and Print
     //
     REPL(input);
-
     //
     // Print stats and exit
     //
     setflag("Exited normally!");
-
     return 0;
 }

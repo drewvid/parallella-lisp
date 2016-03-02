@@ -26,3 +26,4 @@ int stringmem = 0;
 
 ememory *memory;
 int id;
+int ycomb = FALSE;

@@ -26,17 +26,23 @@ char *host_ptr(char *ptr) {
 // Covert pointer references to structure elements
 //
 node *dr_node(node *cell) {
-    if (cell == NULL) return NULL;
+    if (cell == NULL) {
+        return NULL;
+    }
     return (node *)host_ptr((char *)cell);
 }
 
 node *car(node *cell) {
-    if (cell->car == NULL) return NULL;
+    if (cell->car == NULL) {
+        return NULL;
+    }
     return (node *)host_ptr((char *)(cell->car));
 }
 
 node *cdr(node *cell) {
-    if (cell->cdr == NULL) return NULL;
+    if (cell->cdr == NULL) {
+        return NULL;
+    }
     return (node *)host_ptr((char *)(cell->cdr));
 }
 
@@ -75,37 +81,47 @@ void prpair(node *l) {
 }
 
 void print(node *l) {
-    if (nullp(l))
+    if (nullp(l)) {
         printf(" NULL ");
-    else if (teep(l))
-         printf(" t ");
-    else if (nilp(l))
-         printf(" nil ");
-    else if (symp(l)) // symbol
+    }
+    else if (teep(l)) {
+        printf(" t ");
+    }
+    else if (nilp(l)) {
+        printf(" nil ");
+    }
+    else if (symp(l)) { // symbol
         printf(" %s ", dr_name(l));
+    }
     else if (intp(l)) { // integer
         printf(" %lld ", ival(l));
-    } else if(lambdap(l)) { // lambda expression
+    } else if (lambdap(l)) { // lambda expression
         printf(" #lambda ");
         print(largs(l));
         print(lbody(l));
-    } else if (subrp(l))
+    } else if (subrp(l)) {
         printf(" subr ");
-    else if (fsubrp(l))
+    }
+    else if (fsubrp(l)) {
         printf(" fsubr ");
-    else if (pairp(l)) // pair
+    }
+    else if (pairp(l)) { // pair
         prpair(l);
+    }
     else if (consp(l)) {
-        if (!nullp(cdr(l)) && !consp(cdr(l))) // untyped dotted pair
+        if (!nullp(cdr(l)) && !consp(cdr(l))) { // untyped dotted pair
             prpair(l);
+        }
         else { // list
             printf("( ");
-            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr))
+            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr)) {
                 print(car(ptr));
+            }
             printf(" )");
         }
-    } else
+    } else {
         printf(" Something went wrong \n");
+    }
 }
 
 //
@@ -113,17 +129,20 @@ void print(node *l) {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
-    if(!file) {
+    if (!file) {
         fprintf(stderr, "%s\n", "file not found");
         exit(-1);
     }
     char *code;
     size_t n = 0;
     int c;
-    if (file == NULL) return NULL;
+    if (file == NULL) {
+        return NULL;
+    }
     code = malloc(BANKSIZE);
-    while ((c = fgetc(file)) != EOF && n < BANKSIZE-1)
+    while ((c = fgetc(file)) != EOF && n < BANKSIZE-1) {
         code[n++] = (char)c;
+    }
     code[n] = '\0';
     fclose(file);
     return code;
@@ -144,7 +163,6 @@ void createFreelist(ememory *memory, int rows, int cols) {
     int id, k;
     node *freeNodeArray;
     char *base = (char *)memory;
-
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
             id = (cols * i) + j;
@@ -165,7 +183,6 @@ void createStringFreelist(ememory *memory, int rows, int cols) {
     int id, k;
     string *freeStringArray;
     char *base = (char *)memory;
-
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
             id = (cols * i) + j;
@@ -185,7 +202,6 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
     int id, k;
     namestr *freeNameArray;
     char *base = (char *)memory;
-
     for (int i=0; i<rows; i++) {
         for (int j=0; j<cols; j++) {
             id = (cols * i) + j;
@@ -207,24 +223,27 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 ememory *init_ememory(int argc, char *argv[], int rows, int cols) {
     char *code, filename[128];
     ememory *memory = (ememory *)calloc(1, sizeof(ememory));
-    if(!memory) {
+    if (!memory) {
         fprintf(stderr, "%s\n", "out of memory in init_ememory");
         exit(-1);
     }
     lmem = (char *)memory;
-    if (argc == 2)
+    if (argc == 2) {
         code = readFile(argv[1]);
-    for(int i=0; i < NCORES; i++) {
+    }
+    for (int i=0; i < NCORES; i++) {
         if (argc != 2) {
             sprintf(filename, "code/p%d.lisp", i);
             code = readFile(filename);
             sprintf(memory->data[i].code, "%s", code);
             free(code);
-        } else
+        } else {
             sprintf(memory->data[i].code, "%s", code);
+        }
     }
-    if (argc == 2)
+    if (argc == 2) {
         free(code);
+    }
     createFreelist(memory, rows, cols);
     createStringFreelist(memory, rows, cols);
     createNameFreelist(memory, rows, cols);
@@ -259,7 +278,7 @@ void clear_done_flags(e_epiphany_t *dev, int rows, int cols) {
 //
 void poll_device(e_epiphany_t *dev, int rows, int cols) {
     int done[16], all_done;
-    while(1) {
+    while (1) {
         all_done=0;
         for (int i=0; i<rows; i++) {
             for (int j=0; j<cols; j++) {
@@ -267,10 +286,28 @@ void poll_device(e_epiphany_t *dev, int rows, int cols) {
                 all_done+=done[i*cols+j];
             }
         }
-        if(all_done==16) {
+        if (all_done==16) {
             break;
         }
     }
+}
+
+//
+// Print out global variables
+//
+void prGlobals(ememory *memory, int id) {
+    edata *data = &memory->data[id];
+    printf("\n");
+    printf("processor id: \t\t%d\n", data->id);
+    printf("memory: \t\t%d\n", data->ememory_size);
+    printf("node size: \t\t%d\n", data->node_size);
+    printf("nnodes: \t\t%d\n", data->nnodes);
+    printf("nodemem: \t\t%d\n", data->nodemem);
+    printf("nnames: \t\t%d\n", data->nnames);
+    printf("namemem: \t\t%d\n", data->namemem);
+    printf("nstrings: \t\t%d\n", data->nstrings);
+    printf("stringmem: \t\t%d\n", data->stringmem);
+    printf("setflag message: \t%s\n\n", data->message);
 }
 
 //
@@ -288,6 +325,7 @@ void process_ememory(e_mem_t *emem, ememory *memory, int rows, int cols) {
                 print(car(ptr));
                 printf("\n");
             }
+            prGlobals(memory, id);
         }
     }
 }
@@ -301,7 +339,6 @@ int main(int argc, char *argv[]) {
     e_platform_t platform;
     e_epiphany_t dev;
     e_mem_t emem;
-
     //
     // init the device and get platform data
     //
@@ -312,7 +349,6 @@ int main(int argc, char *argv[]) {
     if (E_OK != e_reset_system() ) {
         fprintf(stderr, "\nWARNING: epiphinay system rest failed!\n\n");
     }
-
     fprintf(stderr, "Getting platform info\n");
     if ( E_OK != e_get_platform_info(&platform) ) {
         fprintf(stderr, "Failed to get Epiphany platform info\n");
@@ -320,12 +356,9 @@ int main(int argc, char *argv[]) {
     }
     fprintf(stderr, "Platform version: %s, HAL version 0x%08x\n",
             platform.version, platform.hal_ver);
-
     rows = platform.rows;
     cols = platform.cols;
-
     memory = init_ememory(argc, argv, rows, cols);
-
     //
     // open the device
     //
@@ -333,12 +366,10 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\nERROR: Can't establish connection to Epiphany device!\n\n");
         exit(1);
     }
-
     //
     // Write the ememory data structure to device memory
     //
     write_ememory(&emem, memory);
-
     //
     // Load the code
     //
@@ -349,17 +380,14 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     e_start_group(&dev);
-
     //
     // Poll the device waiting for all cores to finish
     //
     poll_device(&dev, rows, cols);
-
     //
     // Process the results of device processing
     //
     process_ememory(&emem, memory, rows, cols);
-
     //
     // Close and finalize the device
     //

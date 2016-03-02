@@ -52,16 +52,23 @@ struct DIRECTIVE stack {
 };
 
 struct DIRECTIVE edata {
-    int row;
-    int col;
     int id;
+    int ememory_size;
+    int node_size;
+    int nnodes;
+    int nodemem;
+    int nnames;
+    int namemem;
+    int nstrings;
+    int stringmem;
     int finished;
+    char message[1024];
+    char code[BANKSIZE];
     node *NULLPTR;
     node *history;
     node *freelist;
     namestr *namefreelist;
     string *stringfreelist;
-    char code[BANKSIZE];
     string freeStringArray[FREESTRING];
     node freeNodeArray[FREEOBJECT];
     namestr freeNameArray[FREENAME];

@@ -1,3 +1,5 @@
+(setyc)
+
 (defun 1- (x) (- x 1))
 
 (defun factorial (number)
@@ -105,3 +107,5 @@
     )
     10
 )
+
+(unsetyc)
