@@ -111,13 +111,15 @@ In addition the following primitives are included on top of the original 10.
 
 ## The Y-Combinator
 
-The directory plisp-ycomb, contains a version of plisp that will execute the y-combinator. For things to work I had to add one c function:
+The tests directory now contains the code for the derivation of the y-combinator. For things to work I added one c function:
 
     node *bind_variables(node *expr, node *env)
 
 This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived in this blog post [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/)
 
 The plisp version along with an example looks like this:
+
+    (setyc)
 
     (defun YCombinator (f)
     	(funcall 	(lambda (x)
@@ -148,14 +150,16 @@ The plisp version along with an example looks like this:
         )
      	6
     )
+    
+    (unsetyc)
 
-The file, ycomb.lisp, cotains the the above code along with a modified version of the code listed in the blog post on how to derive the function to work with emacs LISP. To see everything working, do this in the plisp-ycomb directory:
+The file, ycomb.lisp, cotains the the above code along with a modified version of the code listed in the blog post on how to derive the function to work with emacs LISP. To see everything working, do this in the plisp or plisp-gc directory:
 
     make
-    ./fl
+    ./fl ../tests/ycomb.lisp
     or
     make build
-    ./plisp ycomb.lisp
+    ./plisp ../tests/ycomb.lisp
 
 ./fl runs the local version and ./plisp runs the code on the parallella 16.
 
