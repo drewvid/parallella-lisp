@@ -2,7 +2,7 @@
 // Structure allocation
 //
 string *smalloc(void) {
-    if (stringfreelist != NULL) {
+    if (stringfreelist isnt NULL) {
         return (string *)popFree((stack **)(&stringfreelist));
     }
     setflag("ERROR in smalloc: NULL stringfreelist");
@@ -22,7 +22,7 @@ void string_free(string *n) {
 }
 
 namestr *nmalloc(void) {
-    if (namefreelist != NULL) {
+    if (namefreelist isnt NULL) {
         return (namestr *)popFree((stack **)(&namefreelist));
     }
     setflag("ERROR in nmalloc: NULL namefreelist");
@@ -42,7 +42,7 @@ void name_free(namestr *n) {
 }
 
 node *omalloc(void) {
-    if (freelist != NULL) {
+    if (freelist isnt NULL) {
         return (node *)popFree((stack **)(&freelist));
     }
     setflag("ERROR in omalloc: NULL freelist");
@@ -312,7 +312,7 @@ node *el_if(node *args, node *env) {
     node *cond, *iftrue;
     cond = eval(nextarg(&args), env);
     iftrue = nextarg(&args);
-    return (type(cond) != NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
+    return (type(cond) isnt NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
 }
 
 node *el_lambda (node *args, node *env) {
@@ -476,7 +476,7 @@ node *el_atom (node *args, node *env) {
     node *res = tee, *head;
     while (args isnt NULLPTR and consp(args)) {
         head = car(args);
-        if (not (nilp(head) || teep(head) || intp(head) || symp(head))) {
+        if (not (nilp(head) or teep(head) or intp(head) or symp(head))) {
             res = nil;
         }
         args = cdr(args);
@@ -567,7 +567,7 @@ node *el_or(node *args, node *env) {
 node *el_and(node *args, node *env) {
     forlist (item in args) {
         node *val =  eval(car(item), env);
-        if (!teep(val)) {
+        if (not teep(val)) {
             return nil;
         }
     }
@@ -580,7 +580,7 @@ node *el_not(node *args, node *env) {
         return tee;
     }
     if (intp(val)) {
-        if (ival(val) != 0) {
+        if (ival(val) isnt 0) {
             return tee;
         }
     }

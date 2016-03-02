@@ -38,7 +38,7 @@ void addValue(char *s, long long i) {
 //
 char *scpy(char *s1, const char *s2) {
     char *s = s1;
-    while ((*s++ = *s2++) != '\0')
+    while ((*s++ = *s2++) isnt '\0')
         ;
     *s = '\0';
     return (s1);
@@ -51,7 +51,7 @@ long long stoi(const char *c)
 {
     long long value = 0;
     int sign = 1;
-    if ( *c == '+' || *c == '-' ) {
+    if ( *c == '+' or *c == '-' ) {
         if ( *c == '-' ) {
             sign = -1;
         }
@@ -142,7 +142,7 @@ void setflag(char *message) {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
-    if (!file) {
+    if (not file) {
         fprintf(stderr, "%s\n", "file not found");
         exit(-1);
     }
@@ -153,7 +153,7 @@ char *readFile(char *fileName) {
         return NULL;
     }
     code = smalloc();
-    while ((c = fgetc(file)) != EOF) {
+    while ((c = fgetc(file)) isnt EOF) {
         code->s[n++] = (char)c;
     }
     code->s[n] = '\0';
@@ -224,7 +224,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 void coreInit(int argc, char *argv[]) {
     char *code;
     memory = (ememory *)calloc(1, sizeof(ememory));
-    if (!memory) {
+    if (not memory) {
         fprintf(stderr, "%s\n", "out of memory in init_ememory");
         exit(-1);
     }
@@ -297,7 +297,7 @@ void print(node *l) {
         }
         else { // list
             printf("( ");
-            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr)) {
+            for (node *ptr = l; ptr isnt NULLPTR; ptr = cdr(ptr)) {
                 print(car(ptr));
             }
             printf(" )");

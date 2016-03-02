@@ -344,7 +344,7 @@ void addValue(char *s, long long i) {
 //
 char *scpy(char *s1, const char *s2) {
     char *s = s1;
-    while ((*s++ = *s2++) != '\0')
+    while ((*s++ = *s2++) isnt '\0')
         ;
     *s = '\0';
     return (s1);
@@ -357,7 +357,7 @@ long long stoi(const char *c)
 {
     long long value = 0;
     int sign = 1;
-    if ( *c == '+' || *c == '-' ) {
+    if ( *c == '+' or *c == '-' ) {
         if ( *c == '-' ) {
             sign = -1;
         }
@@ -448,7 +448,7 @@ void setflag(char *message) {
 //
 char *readFile(char *fileName) {
     FILE *file = fopen(fileName, "r");
-    if (!file) {
+    if (not file) {
         fprintf(stderr, "%s\n", "file not found");
         exit(-1);
     }
@@ -459,7 +459,7 @@ char *readFile(char *fileName) {
         return NULL;
     }
     code = smalloc();
-    while ((c = fgetc(file)) != EOF) {
+    while ((c = fgetc(file)) isnt EOF) {
         code->s[n++] = (char)c;
     }
     code->s[n] = '\0';
@@ -530,7 +530,7 @@ int coreID(unsigned int *row, unsigned int *col) {
 void coreInit(int argc, char *argv[]) {
     char *code;
     memory = (ememory *)calloc(1, sizeof(ememory));
-    if (!memory) {
+    if (not memory) {
         fprintf(stderr, "%s\n", "out of memory in init_ememory");
         exit(-1);
     }
@@ -603,7 +603,7 @@ void print(node *l) {
         }
         else { // list
             printf("( ");
-            for (node *ptr = l; ptr != NULLPTR; ptr = cdr(ptr)) {
+            for (node *ptr = l; ptr isnt NULLPTR; ptr = cdr(ptr)) {
                 print(car(ptr));
             }
             printf(" )");
@@ -653,7 +653,7 @@ void setflag(char *message) {
 // Structure allocation
 //
 string *smalloc(void) {
-    if (stringfreelist != NULL) {
+    if (stringfreelist isnt NULL) {
         return (string *)popFree((stack **)(&stringfreelist));
     }
     setflag("ERROR in smalloc: NULL stringfreelist");
@@ -673,7 +673,7 @@ void string_free(string *n) {
 }
 
 namestr *nmalloc(void) {
-    if (namefreelist != NULL) {
+    if (namefreelist isnt NULL) {
         return (namestr *)popFree((stack **)(&namefreelist));
     }
     setflag("ERROR in nmalloc: NULL namefreelist");
@@ -693,7 +693,7 @@ void name_free(namestr *n) {
 }
 
 node *omalloc(void) {
-    if (freelist != NULL) {
+    if (freelist isnt NULL) {
         return (node *)popFree((stack **)(&freelist));
     }
     setflag("ERROR in omalloc: NULL freelist");
@@ -1017,7 +1017,7 @@ node *el_if(node *args, node *env) {
     node *cond, *iftrue;
     cond = eval(nextarg(&args), env);
     iftrue = nextarg(&args);
-    return (type(cond) != NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
+    return (type(cond) isnt NIL) ? eval(iftrue, env) : eval(nextarg(&args), env);
 }
 
 node *el_lambda (node *args, node *env) {
@@ -1181,7 +1181,7 @@ node *el_atom (node *args, node *env) {
     node *res = tee, *head;
     while (args isnt NULLPTR and consp(args)) {
         head = car(args);
-        if (not (nilp(head) || teep(head) || intp(head) || symp(head))) {
+        if (not (nilp(head) or teep(head) or intp(head) or symp(head))) {
             res = nil;
         }
         args = cdr(args);
@@ -1272,7 +1272,7 @@ node *el_or(node *args, node *env) {
 node *el_and(node *args, node *env) {
     forlist (item in args) {
         node *val =  eval(car(item), env);
-        if (!teep(val)) {
+        if (not teep(val)) {
             return nil;
         }
     }
@@ -1285,7 +1285,7 @@ node *el_not(node *args, node *env) {
         return tee;
     }
     if (intp(val)) {
-        if (ival(val) != 0) {
+        if (ival(val) isnt 0) {
             return tee;
         }
     }
