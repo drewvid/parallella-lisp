@@ -213,12 +213,12 @@
            (any pred (cdr lst)))))
 
 (mapcar 'atom (list 1 '(2) foo t nil))
-(copy-tree '((a b c d) (e f g) h i j))
-(reverse '(1 2 3 4 5 6 7))
-(intersect '(a b c d e f) '(d e f))
+(nthcdr '(1 2 3 4 5) 2)
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+(pow 234 0)
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
 (testfun 13)
 (testfun 101)
-(filter numberp '(1 2 3 a b c 4 5 6))
-(subst 'me 'you '(a list with me))
-(gauss 100)
+
 (copy-list '(a b c d e f g))
+(reverse '(1 2 3 4 5 6 7 8 9))

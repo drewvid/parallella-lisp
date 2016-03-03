@@ -84,15 +84,11 @@ void mark_expr(node *o, unsigned char persistence) {
         return;
     }
     if (pairp(o) or consp(o)) {
-        if (not nullp(o)) {
-            mark_expr(o->car, persistence);
-            mark_expr(o->cdr, persistence);
-        }
+        mark_expr(o->car, persistence);
+        mark_expr(o->cdr, persistence);
     } else if (lambdap(o)) {
-        if (not nullp(o)) {
-            mark_expr(o->args, persistence);
-            mark_expr(o->body, persistence);
-        }
+        mark_expr(o->args, persistence);
+        mark_expr(o->body, persistence);
     }
     if (o->marked <= 1) {
         o->marked = persistence;
@@ -252,7 +248,7 @@ node *popNode(node **stk) {
 // argument/struture access
 //
 node *nextarg(node **pargs) {
-    if (not consp(*pargs) || nullp(*pargs)) {
+    if (not consp(*pargs) or nullp(*pargs)) {
         setflag("too few arguments\n");
     }
     node *arg = car(*pargs);
@@ -271,8 +267,8 @@ char *name(node *o) {
 // Symbol lookup/creation - environment creation
 //
 int strequal(char *s1, char *s2) {  // compare 2 strings
-    while (*s1 == *s2++)
-        if (*s1++ == '\0') {
+    while (*s1 is *s2++)
+        if (*s1++ is '\0') {
             return (0);
         }
     return 1;
@@ -315,7 +311,7 @@ node *el_car (node *args, node *env) {
         head = car(arg);
     }
     else {
-        setflag("ERROR in car: not a list");
+        setflag("ERROR in car: no list elements");
     }
     return head;
 }
@@ -565,7 +561,7 @@ node *el_equal (node *args, node *env) {
         return strequal(name(first), name(second)) is 0? tee : nil;
     }
     else if (intp(first) and intp(second)) {
-        return ival(first) == ival(second) ? tee : nil;
+        return ival(first) is ival(second) ? tee : nil;
     }
     else {
         return nil;
@@ -607,7 +603,7 @@ node *el_funcall(node *args, node *env) {
 
 node *el_zerop(node *args, node *env) {
     node *val = nextarg(&args);
-    return ival(val) == 0 ? tee : nil;
+    return ival(val) is 0 ? tee : nil;
 }
 
 node *el_sub1(node *args, node *env) {
