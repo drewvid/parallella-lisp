@@ -962,7 +962,7 @@ node *el_car (node *args, node *env) {
         head = car(arg);
     }
     else {
-        setflag("ERROR in car: not a list");
+        setflag("ERROR in car: no list elements");
     }
     return head;
 }
