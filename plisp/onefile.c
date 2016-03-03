@@ -853,8 +853,8 @@ node *popNode(node **stk) {
 // argument/struture access
 //
 node *nextarg(node **pargs) {
-    if (not consp(*pargs)) {
-        pr(sym("too few arguments\n"));
+    if (not consp(*pargs) || nullp(*pargs)) {
+        setflag("too few arguments\n");
     }
     node *arg = car(*pargs);
     *pargs = cdr(*pargs);
@@ -880,9 +880,10 @@ int strequal(char *s1, char *s2) {  // compare 2 strings
 }
 
 node *assq(char *key, node *list) {
-    forlist (ptr in list)
-    if (strequal(key, name(caar(ptr))) is 0) {
-        return car(ptr);
+    forlist (ptr in list) {
+        if (strequal(key, name(caar(ptr))) is 0) {
+            return car(ptr);
+        }
     }
     return NULLPTR;
 }
@@ -900,8 +901,9 @@ node *lookupsym(char *name, node *env) {
 
 node *make_env(node *vars, node *vals, node *env) {
     node *nenv = NULLPTR;
-    forlist2 (pvar in vars, pval in vals)
-    add_pair(car(pvar), eval(car(pval), env), &nenv);
+    forlist2 (pvar in vars, pval in vals) {
+        add_pair(car(pvar), eval(car(pval), env), &nenv);
+    }
     return newcontext(nenv, env);
 }
 
@@ -952,9 +954,13 @@ node *el_cons (node *args, node *env) {
 }
 
 node *el_cond(node *args, node *env) {
-    forlist (ptr in args)
-    if (not nilp(eval(caar(ptr), env))) {
-        return eval(cadar(ptr), env);
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
+    forlist (ptr in args) {
+        if (not nilp(eval(caar(ptr), env))) {
+            return eval(cadar(ptr), env);
+        }
     }
     return nil;
 }
@@ -1010,27 +1016,39 @@ node *el_ldefine(node *args, node *env) {
 node *el_loop(node *args, node *env) {
     node *cond = nextarg(&args), *val = NULLPTR;
     while (type(eval(cond, env)) is TEE) {
-        forlist (ptr in args)
-        val = eval(car(ptr), env);
+        forlist (ptr in args) {
+            val = eval(car(ptr), env);
+        }
     }
     return val;
 }
 
 node *el_block(node *args, node *env) {
     node *res = NULLPTR;
-    forlist (ptr in args)
-    atl(&res, eval(car(ptr), env));
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
+    forlist (ptr in args) {
+        atl(&res, eval(car(ptr), env));
+    }
     return res;
 }
 
 node *el_progn(node *args, node *env) {
     node *res = nil;
-    forlist (ptr in args)
-    res = eval(car(ptr), env);
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
+    forlist (ptr in args) {
+        res = eval(car(ptr), env);
+    }
     return res;
 }
 
 node *el_print(node *args, node *env) {
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
     pr(args);
     return nil;
 }
@@ -1125,6 +1143,9 @@ node *el_divide(node *args, node *env) {
 //
 node *el_atom (node *args, node *env) {
     node *res = tee, *head;
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
     while (args isnt NULLPTR and consp(args)) {
         head = car(args);
         if (not (nilp(head) or teep(head) or intp(head) or symp(head))) {
@@ -1206,6 +1227,9 @@ node *el_numberp(node *args, node *env) {
 }
 
 node *el_or(node *args, node *env) {
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
     forlist (item in args) {
         node *val =  eval(car(item), env);
         if (teep(val)) {
@@ -1216,6 +1240,9 @@ node *el_or(node *args, node *env) {
 }
 
 node *el_and(node *args, node *env) {
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
     forlist (item in args) {
         node *val =  eval(car(item), env);
         if (not teep(val)) {
@@ -1239,6 +1266,9 @@ node *el_not(node *args, node *env) {
 }
 
 node *el_setflag(node *args, node *env) {
+    if (nullp(args)) {
+        setflag("too few arguments\n");
+    }
     pr(args);
     setflag("WARNING: setflag called from lisp");
     return nil;
@@ -1456,16 +1486,18 @@ int length(node *l) {
     if (nilp(l)) {
         return 0;
     }
-    forlist (ptr in l)
-    n++;
+    forlist (ptr in l) {
+        n++;
+    }
     return n;
 }
 
 node *bind_variables(node *expr, node *env) {
     node *newexpr = NULLPTR;
     if (consp(expr)) {
-        forlist (item in expr)
-        atl(&newexpr, bind_variables(car(item), env));
+        forlist (item in expr) {
+            atl(&newexpr, bind_variables(car(item), env));
+        }
     } else if (symp(expr)) {
         node *b = assq(name(expr), ebindings(env));
         if (b isnt NULLPTR and lambdap(cdr(b))) {
@@ -1520,16 +1552,14 @@ node *eval_list(node *sexp, node *env) {
     }
     else {
         res = cons(head, NULLPTR);
-        forlist (ptr in cdr(sexp))
-        append(res, eval(car(ptr), env));
+        forlist (ptr in cdr(sexp)) {
+            append(res, eval(car(ptr), env));
+        }
     }
     return res;
 }
 
 node *eval(node *input, node *env) {
-    if (nullp(input)) {
-        setflag("ERROR in eval: NULLPTR");
-    }
     if (consp(input)) {
         input = eval_list(input, env);
     }

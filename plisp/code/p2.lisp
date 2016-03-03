@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(reverse '(1 2 3 4 5 6 7))
-(last '(1 2 3 4))
-(every numberp '(1 a))
-(reverse '(1 2 3 4 5 6 7 8 9))
-(testfun 101)
 
-(gauss 100)
+(sum-to-n 100)
 (mapcar  'mycar '( (1 2) (3 4) (5 6)))
 
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+(gauss 100)
+(last '(1 2 3 4))
+(append '(1 2 3 4) '(5 6 7 8 9))
+(reverse '(1 2 3 4 5 6 7))
 (pow 2 3)
