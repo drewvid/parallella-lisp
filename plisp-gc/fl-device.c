@@ -331,10 +331,15 @@ void prGlobals(ememory *memory, int id) {
 //
 void setflag(char *message) {
     saveGlobals(message);
+    int n = 1;
     if (nnodes < FREEOBJECT and nnames < FREENAME) {
         forlist (ptr in history) {
+            if (n) {
+                printf("> ");
+            }
+            n = not n;
             print(car(ptr));
-            printf("\n");
+            printf("\n\n");
         }
     }
     prGlobals(memory, id);

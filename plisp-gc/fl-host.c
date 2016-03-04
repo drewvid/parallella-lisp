@@ -322,9 +322,14 @@ void process_ememory(e_mem_t *emem, ememory *memory, int rows, int cols) {
             int id = (cols * i) + j;
             NULLPTR = dr_node((node *)(memory->data[id].NULLPTR));
             history = dr_node(memory->data[id].history);
+            int n = 1;
             for (node *ptr = history; ptr != NULLPTR; ptr = cdr(ptr)) {
+                if (n) {
+                    printf("> ");
+                }
+                n = !n;
                 print(car(ptr));
-                printf("\n");
+                printf("\n\n");
             }
             prGlobals(memory, id);
         }
