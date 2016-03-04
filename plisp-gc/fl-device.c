@@ -174,6 +174,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
                 freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
             }
+            freeNodeArray[FREEOBJECT - 1].type = FREE;
             freeNodeArray[FREEOBJECT - 1].next = NULL;
         }
     }

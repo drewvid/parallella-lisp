@@ -58,6 +58,7 @@ node *node_malloc() {
 void node_free(node *n) {
     nodemem -= sizeof(node);
     nnodes -= 1;
+    n->type = FREE;
     pushFree((stack *)n, (stack **)(&freelist));
 }
 

@@ -172,6 +172,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
                 freeNodeArray[k].next = (node *)device_ptr(base, ptr);
                 freeNodeArray[k].type = FREE;
             }
+            freeNodeArray[FREEOBJECT - 1].type = FREE;
             freeNodeArray[FREEOBJECT - 1].next = NULL;
             char *ptr = (char *)memory->data[id].freeNodeArray;
             memory->data[id].freelist = (node *)device_ptr(base, ptr);

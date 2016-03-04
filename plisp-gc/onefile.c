@@ -480,6 +480,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
                 freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
             }
+            freeNodeArray[FREEOBJECT - 1].type = FREE;
             freeNodeArray[FREEOBJECT - 1].next = NULL;
         }
     }
@@ -709,6 +710,7 @@ node *node_malloc() {
 void node_free(node *n) {
     nodemem -= sizeof(node);
     nnodes -= 1;
+    n->type = FREE;
     pushFree((stack *)n, (stack **)(&freelist));
 }
 
