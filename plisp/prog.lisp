@@ -1,7 +1,3 @@
-(define testit (lambda ()
-    (print test))
-)
-
 (defun foldr (f zero lst)
   (if (null lst) zero
     (funcall f (car lst) (foldr f zero (cdr lst)))
@@ -61,8 +57,6 @@
 (label cube
        (lambda (x) (* x x x)))
 
-(testit)
-
 (iota 0 10)
 
 (define l '((1 2 3) (4 5 6) (7 8 9) (10 11 12) (13 14 15) (16 17 18) (19 20 21)))
@@ -75,4 +69,4 @@
 (fibonacci 11)
 (factorial-iter 3)
 
-(print hello world from core (id))
+(hello world from core (id))

@@ -174,6 +174,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
                 freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
             }
+            freeNodeArray[FREEOBJECT - 1].type = FREE;
             freeNodeArray[FREEOBJECT - 1].next = NULL;
         }
     }
@@ -330,10 +331,15 @@ void prGlobals(ememory *memory, int id) {
 //
 void setflag(char *message) {
     saveGlobals(message);
+    int n = 1;
     if (nnodes < FREEOBJECT and nnames < FREENAME) {
         forlist (ptr in history) {
+            if (n) {
+                printf("> ");
+            }
+            n = not n;
             print(car(ptr));
-            printf("\n");
+            printf("\n\n");
         }
     }
     prGlobals(memory, id);

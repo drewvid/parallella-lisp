@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-
-(every numberp '(1 a))
-(copy-tree '((a b c d) (e f g) h i j))
 (last '(1 2 3 4))
-(rember 'me '(please remove me))
 (list-ref '(1 2 3 4) 1)
-(member 'me '(please remove me))
+
+(every numberp '(1 2))
+(copy-list '(a b c d e f g))
 (mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(intersect '(a b c d e f) '(d e f))
-(mapcar 'atom (list 1 '(2) foo t nil))
+(pow 2 3)
+(reverse '(1 2 3 4 5 6 7))
+(any numberp '(1 a))
+(pow 234 0)

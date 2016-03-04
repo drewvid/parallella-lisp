@@ -1,1 +1,1 @@
-(print hello world from core (id))
+(hello world from core (id))

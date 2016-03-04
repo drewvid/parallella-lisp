@@ -228,6 +228,9 @@ node *node_malloc(void);
 void node_free(node *n);
 void pushFree(stack *ptr, stack **stk);
 stack *popFree(stack **stk);
+void mark_expr(node *o, unsigned char persistence);
+void release_node(node *o);
+void free_unmarked(node **allocated);
 node *newnode(enum ltype type);
 node *sym(char *val);
 node *cons(node *head, node *tail);
@@ -477,6 +480,7 @@ void createFreelist(ememory *memory, int rows, int cols) {
                 freeNodeArray[k].next = &freeNodeArray[k + 1];
                 freeNodeArray[k].type = FREE;
             }
+            freeNodeArray[FREEOBJECT - 1].type = FREE;
             freeNodeArray[FREEOBJECT - 1].next = NULL;
         }
     }
@@ -633,10 +637,15 @@ void prGlobals(ememory *memory, int id) {
 //
 void setflag(char *message) {
     saveGlobals(message);
+    int n = 1;
     if (nnodes < FREEOBJECT and nnames < FREENAME) {
         forlist (ptr in history) {
+            if (n) {
+                printf("> ");
+            }
+            n = not n;
             print(car(ptr));
-            printf("\n");
+            printf("\n\n");
         }
     }
     prGlobals(memory, id);
@@ -706,6 +715,7 @@ node *node_malloc() {
 void node_free(node *n) {
     nodemem -= sizeof(node);
     nnodes -= 1;
+    n->type = FREE;
     pushFree((stack *)n, (stack **)(&freelist));
 }
 

@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(length '(0 1 2 3 4 5 6 7 8 9))
-(reverse '(1 2 3 4 5 6 7 8 9))
-(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(copy-tree '((a b c d) (e f g) h i j))
-(testfun 101)
-(last '(1 2 3 4))
-
 (mapcar 'atom (list 1 '(2) foo t nil))
-(rember 'me '(please remove me))
-(member 'me '(please remove me))
+(every numberp '(1 a))
+(filter numberp '(1 2 3 a b c 4 5 6))
+(reverse '(1 2 3 4 5 6 7 8 9))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(last '(1 2 3 4))
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+(pow 2 3)

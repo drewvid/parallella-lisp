@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(any numberp '(1 a))
-(testfun 101)
-(gauss 100)
-(reverse2 '(1 2 3 4 5 6 7 8 9))
-(reverse '(1 2 3 4 5 6 7))
-(pow 234 0)
-(testfun 13)
-(intersect '(a b c d e f) '(d e f))
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
 (any numberp '(a b))
+(nth '(1 2 3 4 5) 1)
+(reverse '(1 2 3 4 5 6 7))
+(reverse2 '(1 2 3 4 5 6 7 8 9))
+(every numberp '(1 a))
+
+(list-ref '(1 2 3 4) 1)
+(reverse '(1 2 3 4 5 6 7 8 9))
+
+(intersect '(a b c d e f) '(d e f))

@@ -53,7 +53,6 @@
          ((eq (car exp) 'cons)  (cons (eval (cadr exp) env)
                                       (eval (caddr exp) env)))
          ((eq (car exp) 'cond)  (evcon (cdr exp) env))
-         ((eq (car exp) 'print)  (print (eval (cadr exp) env)))
          (t (eval (cons (assoc (car exp) env) (cdr exp)) env))
       )
     )
@@ -85,4 +84,3 @@
 
 (eval '(cons x '(b c)) '((x a) (y b)))
 (eval '(f '(bar baz)) '((f (lambda (x) (cons 'foo x)))))
-(eval '(f '(one two)) '((f (lambda (x) (print x)))))

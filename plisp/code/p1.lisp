@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-
+(subst 'me 'you '(a list with me))
+(any numberp '(a b))
 (multiins 'one 'two '(one three one three one three one three))
-(intersect '(a b c d e f) '(d e f))
-(filter numberp '(1 2 3 a b c 4 5 6))
+(last '(1 2 3 4))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+(nth '(1 2 3 4 5) 1)
+(reverse '(1 2 3 4 5 6 7))
+(testfun 13)
+(any numberp '(1 a))
 (mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(nfibs 10)
-(testfun 101)
-
-(nthcdr '(1 2 3 4 5) 2)
