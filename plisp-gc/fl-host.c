@@ -10,6 +10,8 @@
 #include "structures.h"
 #include "globals.h"
 
+int e_load_group(char *executable, e_epiphany_t *dev, unsigned row, unsigned col, unsigned rows, unsigned cols, e_bool_t start);
+
 #define _BufOffset (0x01000000)
 
 char *lmem;

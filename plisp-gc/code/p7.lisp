@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(mapcar 'atom (list 1 '(2) foo t nil))
-(list-ref '(1 2 3 4) 1)
-
-(member 'me '(please remove me))
-(nfibs 10)
-(append '(1 2 3 4) '(5 6 7 8 9))
-(nth '(1 2 3 4 5) 1)
+(rember 'me '(please remove me))
 (intersect '(a b c d e f) '(d e f))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+
+(pow 2 3)
+(filter numberp '(1 2 3 a b c 4 5 6))
+(nth '(1 2 3 4 5) 1)
+(testfun 13)
+(testfun 101)
 (mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(gauss 100)
