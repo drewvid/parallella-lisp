@@ -195,6 +195,7 @@ int stringmem = 0;
 ememory *memory;
 int id;
 int ycomb = FALSE;
+int evalcar = FALSE;
 
 
 /* fl-device.c */
@@ -1544,7 +1545,13 @@ node *evform(node *fnode, node *exp, node *env) {
 node *evsym(node *exp, node *env) {
     node *val = lookupsym(name(exp), env);
     if (val is NULLPTR) {
-        val = exp;
+        if (evalcar) {
+            evalcar = FALSE;
+            setflag("undefined function");
+        }
+        else {
+            setflag("undefined variable");
+        }
     }
     return val;
 }
@@ -1568,7 +1575,9 @@ node *eval_list(node *sexp, node *env) {
 
 node *eval(node *input, node *env) {
     if (consp(input)) {
+        evalcar = TRUE;
         input = eval_list(input, env);
+        evalcar = FALSE;
     }
     else if (symp(input)) {
         input = evsym(input, env);

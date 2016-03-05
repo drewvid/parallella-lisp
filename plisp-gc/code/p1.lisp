@@ -213,12 +213,12 @@
            (any pred (cdr lst)))))
 
 (last '(1 2 3 4))
-(any numberp '(a b))
-(append '(1 2 3 4) '(5 6 7 8 9))
-(length '(0 1 2 3 4 5 6 7 8 9))
-(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(gauss 100)
-(copy-list '(a b c d e f g))
-(nthcdr '(1 2 3 4 5) 2)
+(reverse2 '(1 2 3 4 5 6 7 8 9))
 
-(rember 'me '(please remove me))
+
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(member 'me '(please remove me))
+(multiins 'one 'two '(one three one three one three one three))
+(length '(0 1 2 3 4 5 6 7 8 9))
+(subst 'me 'you '(a list with me))
+(append '(1 2 3 4) '(5 6 7 8 9))
