@@ -1,1 +1,1 @@
-'(hello world from core (id))
+(block 'hello 'world 'from 'core (id))
