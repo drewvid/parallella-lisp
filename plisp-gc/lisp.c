@@ -946,6 +946,7 @@ node *evsym(node *exp, node *env) {
 
 node *eval_list(node *sexp, node *env) {
     node *head = eval(car(sexp), env), *res = NULLPTR;
+    evalcar = FALSE;
     if (subrp(head) or fsubrp(head)) {
         res = evform(head, cdr(sexp), env);
     }
@@ -965,7 +966,6 @@ node *eval(node *input, node *env) {
     if (consp(input)) {
         evalcar = TRUE;
         input = eval_list(input, env);
-        evalcar = FALSE;
     }
     else if (symp(input)) {
         input = evsym(input, env);
