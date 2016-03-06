@@ -34,7 +34,7 @@ In the two latest versions of Parallella-lisp, released in early Feb 2016, the p
     )
     (func x y)
     result
-    (x y)
+    (block x y)
 
 More functionality is slowly being added as space permits.
 
