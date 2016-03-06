@@ -5,8 +5,17 @@ LISP has a long distinguished history and is the second oldest high level progra
 
 In the two latest versions of Parallella-lisp, released in early Feb 2016, the printing of input and evaluated input has been moved to the host. Also the freelist containing unallocated nodes is constructed on the host and written to the device. This makes the LISP interpreter smaller and frees up space for more functionality. The version of Parallella-lisp with Garbage Collection now contains more primities. Garbage collection is done at the end of each iteration of the REPL. Variables can be defined with ldefine (local) or define (global). Loop variables can be either local or global thus the following will work and x and y should be 100 when printed.
 
-    (define x 100)
-    (define y 100)
+    (defun foldr (f zero lst)
+      (if (null lst) zero
+        (funcall f (car lst) (foldr f zero (cdr lst)))
+      )
+    )
+    
+    (defun append (a b) (foldr cons b a))
+    
+    (define x 2)
+    (define y 2)
+    (define result nil)
     (define func
         (lambda (n1 n2)
             (progn
@@ -14,17 +23,18 @@ In the two latest versions of Parallella-lisp, released in early Feb 2016, the p
                 (loop (> y -1)
                     (ldefine x n1)
                     (loop (> x -1)
-                        (print y x)
+                        (define result (append result ((x y))))
                         (ldefine x (- x 1))
                     )
                     (ldefine y (- y 1))
                 )
+                nil
             )
         )
     )
-    (func 10 10)
-    (print x y)
-
+    (func x y)
+    result
+    (x y)
 
 More functionality is slowly being added as space permits.
 
@@ -81,7 +91,6 @@ In addition the following primitives are included on top of the original 10.
     if
     define
     ldefine
-    print
     terpri
     <
     >
