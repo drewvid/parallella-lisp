@@ -27,4 +27,4 @@
 )
 (func x y)
 result
-(x y)
+(block x y)
