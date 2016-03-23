@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(mapcar 'atom '(list 1 (2) foo t nil))
-(sum-to-n 100)
-(subst 'me 'you '(a list with me))
-
-(gauss 100)
-(mapcar  'mycar '( (1 2) (3 4) (5 6)))
-(any numberp '(a b))
+(any numberp '(1 a))
 (nfibs 10)
-
-(pow 2 3)
+(rember 'me '(please remove me))
+(append '(1 2 3 4) '(5 6 7 8 9))
+(gauss 100)
+(subst 'me 'you '(a list with me))
+(testfun 13)
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+(pow 234 0)
+(every numberp '(1 a))

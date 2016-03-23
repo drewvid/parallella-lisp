@@ -10,5 +10,5 @@ if __name__ == "__main__":
 
     cat("includes.h", 0)
     cat("libplisp.c", 10)
-    cat("libdevice.c", 12)
+    cat("libdevice.c", 14)
     cat("device_main.c", 9)

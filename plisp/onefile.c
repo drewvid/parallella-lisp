@@ -1050,8 +1050,6 @@ void REPL(char *input) {
     }
 }
 
-#define BUF_ADDRESS 0x8f000000
-
 #if EPIPHANY
 
 //
