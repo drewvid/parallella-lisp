@@ -1,5 +1,5 @@
 
-all: gencode fl
+all: gencode fl onefile
 	rm -f Trace.out
 
 build:

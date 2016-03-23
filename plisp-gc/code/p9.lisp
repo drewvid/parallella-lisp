@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(nfibs 10)
-(subst 'me 'you '(a list with me))
+(any numberp '(a b))
 (append '(1 2 3 4) '(5 6 7 8 9))
-(last '(1 2 3 4))
 (mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(copy-list '(a b c d e f g))
+(gauss 100)
+(sum-to-n 100)
 (copy-tree '((a b c d) (e f g) h i j))
-
-
-(reverse2 '(1 2 3 4 5 6 7 8 9))
 (every numberp '(1 a))
+(subst 'me 'you '(a list with me))
+

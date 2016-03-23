@@ -9,6 +9,6 @@ def cat(filename, skip):
 if __name__ == "__main__":
 
     cat("includes.h", 0)
-    cat("libplisp.c", 8)
-    cat("libdevice.c", 15)
-    cat("device_main.c", 7)
+    cat("libplisp.c", 10)
+    cat("libdevice.c", 12)
+    cat("device_main.c", 9)

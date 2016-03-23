@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(member 'me '(please remove me))
-(every numberp '(1 2))
-(assoc 'five '((one two) (three four) (five six) (seven eight)))
-(append '(1 2 3 4) '(5 6 7 8 9))
+(mapcar 'atom '(list 1 (2) foo t nil))
 (sum-to-n 100)
-(reverse '(1 2 3 4 5 6 7))
-(last '(1 2 3 4))
-(rember 'me '(please remove me))
+(subst 'me 'you '(a list with me))
 
-(intersect '(a b c d e f) '(d e f))
+(gauss 100)
+(mapcar  'mycar '( (1 2) (3 4) (5 6)))
+(any numberp '(a b))
+(nfibs 10)
+
+(pow 2 3)
