@@ -2,96 +2,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <stdarg.h>
-
 #if EPIPHANY
 #include "e-lib.h"
 #endif
-
-#include "common.h"
-#include "proto.h"
+#include "defines.h"
+#include "structures.h"
+#define EXTERNAL extern
+#include "globals.h"
+#include "device_proto.h"
 
 #define BUF_ADDRESS 0x8f000000
-
-//
-// Add items to the history
-//
-void pr(node *cell) {
-    atl(&history, cell);
-}
-
-void addInt(long long i) {
-    pr(integer(i));
-}
-
-void addString(char *s) {
-    pr(sym(s));
-}
-
-void addValue(char *s, long long i) {
-    addString(s);
-    addInt(i);
-}
-
-//
-// local version of strcpy
-//
-char *scpy(char *s1, const char *s2) {
-    char *s = s1;
-    while ((*s++ = *s2++) isnt '\0')
-        ;
-    *s = '\0';
-    return (s1);
-}
-
-//
-// local version of atoi
-//
-long long stoi(const char *c)
-{
-    long long value = 0;
-    int sign = 1;
-    if ( *c == '+' or *c == '-' ) {
-        if ( *c == '-' ) {
-            sign = -1;
-        }
-        c++;
-    }
-    while (isdigit(*c)) {
-        value *= 10;
-        value += (int) (*c-'0');
-        c++;
-    }
-    return (value * sign);
-}
-
-//
-// length of a string
-//
-int slen(char *s) {
-    int c = 0;
-    while (*(s+c)) {
-        c++;
-    }
-    return c;
-}
-
-//
-// Save global variables
-//
-void saveGlobals(char *message) {
-    edata *data = &memory->data[id];
-    scpy(data->message, message);
-    data->id = id;
-    data->ememory_size = sizeof(ememory);
-    data->node_size = sizeof(node);
-    data->nnodes = nnodes;
-    data->nodemem = nodemem;
-    data->nnames = nnames;
-    data->namemem = namemem;
-    data->nstrings = nstrings;
-    data->stringmem = stringmem;
-}
 
 #if EPIPHANY
 
@@ -110,14 +30,13 @@ int coreID(unsigned int *row, unsigned int *col) {
 //
 // Initilaize core memory
 //
-void coreInit(int argc, char *argv[]) {
+char *coreInit(int argc, char *argv[], int cid) {
+    id = cid;
     memory = (ememory *)(BUF_ADDRESS);
-    freeStringArray = &memory->data[id].freeStringArray[0];
-    freeNodeArray = &memory->data[id].freeNodeArray[0];
-    freeNameArray = &memory->data[id].freeNameArray[0];
-    freelist = freeNodeArray;
-    stringfreelist = freeStringArray;
-    namefreelist = freeNameArray;
+    stringfreelist = &memory->data[id].freeStringArray[0];
+    freelist = &memory->data[id].freeNodeArray[0];
+    namefreelist = &memory->data[id].freeNameArray[0];
+    return &memory->data[id].code[0];
 }
 
 //
@@ -211,43 +130,6 @@ void createNameFreelist(ememory *memory, int rows, int cols) {
 }
 
 //
-// Generate a core ID for testing
-//
-int coreID(unsigned int *row, unsigned int *col) {
-    *row = 1;
-    *col = 1;
-    return ((*row * 4) + *col);
-}
-
-//
-// Initialize globals
-//
-void coreInit(int argc, char *argv[]) {
-    char *code;
-    memory = (ememory *)calloc(1, sizeof(ememory));
-    if (not memory) {
-        fprintf(stderr, "%s\n", "out of memory in init_ememory");
-        exit(-1);
-    }
-    freeStringArray = &memory->data[id].freeStringArray[0];
-    freeNodeArray = &memory->data[id].freeNodeArray[0];
-    freeNameArray = &memory->data[id].freeNameArray[0];
-    freelist = freeNodeArray;
-    stringfreelist = freeStringArray;
-    namefreelist = freeNameArray;
-    if (argc == 2) {
-        code = readFile(argv[1]);
-    }
-    else {
-        code = readFile("testfuncs.lisp");
-    }
-    scpy(memory->data[id].code, code);
-    createFreelist(memory, 4, 4);
-    createNameFreelist(memory, 4, 4);
-    createStringFreelist(memory, 4, 4);
-}
-
-//
 // Printing routines
 //
 
@@ -327,6 +209,41 @@ void prGlobals(ememory *memory, int id) {
 }
 
 //
+// Generate a core ID for testing
+//
+int coreID(unsigned int *row, unsigned int *col) {
+    *row = 1;
+    *col = 1;
+    return ((*row * 4) + *col);
+}
+
+//
+// Initialize globals
+//
+char *coreInit(int argc, char *argv[], int cid) {
+    char *code;
+    memory = (ememory *)calloc(1, sizeof(ememory));
+    if (not memory) {
+        fprintf(stderr, "%s\n", "out of memory in init_ememory");
+        exit(-1);
+    }
+    stringfreelist = &memory->data[id].freeStringArray[0];
+    freelist = &memory->data[id].freeNodeArray[0];
+    namefreelist = &memory->data[id].freeNameArray[0];
+    if (argc == 2) {
+        code = readFile(argv[1]);
+    }
+    else {
+        code = readFile("code/p2.lisp");
+    }
+    scpy(memory->data[id].code, code);
+    createFreelist(memory, 4, 4);
+    createNameFreelist(memory, 4, 4);
+    createStringFreelist(memory, 4, 4);
+    return code;
+}
+
+//
 // Print out the history list and exit
 //
 void setflag(char *message) {
@@ -348,34 +265,3 @@ void setflag(char *message) {
 
 #endif
 
-// LISP Code
-#include "lisp.c"
-// End of LISP Code
-
-//
-// test on the host - simulate the info for a single core
-//
-int main(int argc, char *argv[]) {
-    unsigned int row, col;
-    //
-    // get the core id
-    //
-    id = coreID(&row, &col);
-    //
-    // Initialize the core
-    //
-    coreInit(argc, argv);
-    //
-    // load the code
-    //
-    input = &memory->data[id].code[0];
-    //
-    // Read, Eval and Print
-    //
-    REPL(input);
-    //
-    // Print stats and exit
-    //
-    setflag("Exited normally!");
-    return 0;
-}

@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(pow 2 3)
-(rember 'me '(please remove me))
-(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
-(subst 'me 'you '(a list with me))
-(copy-list '(a b c d e f g))
-(nth '(1 2 3 4 5) 1)
-(any numberp '(1 a))
-(member 'me '(please remove me))
-(testfun 101)
+(gauss 100)
 
+(member 'me '(please remove me))
+(subst 'me 'you '(a list with me))
+
+(append '(1 2 3 4) '(5 6 7 8 9))
+(every numberp '(1 2))
+(sum-to-n 100)
+(testfun 13)
+(nthcdr '(1 2 3 4 5) 2)

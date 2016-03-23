@@ -1,4 +1,18 @@
-/* fl-device.c */
+/* device_main.c */
+int main(int argc, char *argv[]);
+/* libdevice.c */
+char *readFile(char *fileName);
+void createFreelist(ememory *memory, int rows, int cols);
+void createStringFreelist(ememory *memory, int rows, int cols);
+void createNameFreelist(ememory *memory, int rows, int cols);
+int coreID(unsigned int *row, unsigned int *col);
+char *coreInit(int argc, char *argv[], int cid);
+void nl(void);
+void prpair(node *l);
+void print(node *l);
+void prGlobals(ememory *memory, int id);
+void setflag(char *message);
+/* libplisp.c */
 void pr(node *cell);
 void addInt(long long i);
 void addString(char *s);
@@ -7,17 +21,6 @@ char *scpy(char *s1, const char *s2);
 long long stoi(const char *c);
 int slen(char *s);
 void saveGlobals(char *message);
-char *readFile(char *fileName);
-void createFreelist(ememory *memory, int rows, int cols);
-void createStringFreelist(ememory *memory, int rows, int cols);
-void createNameFreelist(ememory *memory, int rows, int cols);
-int coreID(unsigned int *row, unsigned int *col);
-void coreInit(int argc, char *argv[]);
-void nl(void);
-void prpair(node *l);
-void print(node *l);
-void prGlobals(ememory *memory, int id);
-void setflag(char *message);
 string *smalloc(void);
 string *string_malloc(void);
 void string_free(string *n);
@@ -115,4 +118,3 @@ node *evsym(node *exp, node *env);
 node *eval_list(node *sexp, node *env);
 node *eval(node *input, node *env);
 void REPL(char *input);
-int main(int argc, char *argv[]);

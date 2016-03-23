@@ -1,5 +1,5 @@
 
-all: gencode fl onefile
+all: gencode fl
 	rm -f Trace.out
 
 build:
@@ -15,16 +15,17 @@ gencode:
 
 fl: force
 	rm -f fl fl.exe
-	gcc -Os -std=gnu99 -Wall -o fl fl-device.c
+	gcc -Os -std=gnu99 -Wall -o fl device_main.c libdevice.c libplisp.c
 
 onefile: force
-	python onefile.py
+	python onefile.py > onefile.c
 	rm -f onefile onefile.exe
 	gcc -Os -std=gnu99 -o onefile onefile.c
 	wc -l onefile.c
 
 proto:
-	cproto fl-device.c > proto.h
+	cproto device_main.c libdevice.c libplisp.c > device_proto.h
+	cproto -I/opt/adapteva/esdk/tools/host.armv7l/include host_main.c libhost.c > host_proto.h
 
 force:
 

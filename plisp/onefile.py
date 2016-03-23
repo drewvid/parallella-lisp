@@ -1,28 +1,14 @@
-import sys
 
-def prfile(lineIn):
-    incfile = lineIn.split('"')[1]
-    fp = open(incfile, "r")
-    for line in fp:
-	if "include" in line:
-            prfile(line)
-        else:
-            out.write(line)
-    out.write("\n")
-    fp.close
+def cat(filename, skip):
+    fp = open(filename, "r")
+    lines = fp.readlines()
+    for line in lines[skip:]:
+        print line.rstrip()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    out = open("onefile.c", "w")
-
-    n = 0
-    fp = open("fl-device.c", "r")
-    for line in fp:
-        n += 1
-        if "#include" in line and n > 5 and "e-lib" not in line:
-            prfile(line)
-        else:
-            out.write(line)
-    fp.close()
-    out.close()
+    cat("includes.h", 0)
+    cat("libplisp.c", 8)
+    cat("libdevice.c", 15)
+    cat("device_main.c", 7)

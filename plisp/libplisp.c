@@ -1,3 +1,101 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include <stdarg.h>
+#include "defines.h"
+#include "structures.h"
+#define EXTERNAL
+#include "globals.h"
+#include "device_proto.h"
+
+int ycomb = FALSE;
+int evalcar = FALSE;
+
+//
+// Add items to the history
+//
+void pr(node *cell) {
+    atl(&history, cell);
+}
+
+void addInt(long long i) {
+    pr(integer(i));
+}
+
+void addString(char *s) {
+    pr(sym(s));
+}
+
+void addValue(char *s, long long i) {
+    addString(s);
+    addInt(i);
+}
+
+//
+// local version of strcpy
+//
+char *scpy(char *s1, const char *s2) {
+    char *s = s1;
+    while ((*s++ = *s2++) isnt '\0')
+        ;
+    *s = '\0';
+    return (s1);
+}
+
+//
+// local version of atoi
+//
+long long stoi(const char *c)
+{
+    long long value = 0;
+    int sign = 1;
+    if ( *c == '+' or *c == '-' ) {
+        if ( *c == '-' ) {
+            sign = -1;
+        }
+        c++;
+    }
+    while (isdigit(*c)) {
+        value *= 10;
+        value += (int) (*c-'0');
+        c++;
+    }
+    return (value * sign);
+}
+
+//
+// length of a string
+//
+int slen(char *s) {
+    int c = 0;
+    while (*(s+c)) {
+        c++;
+    }
+    return c;
+}
+
+//
+// Save global variables
+//
+void saveGlobals(char *message) {
+    edata *data = &memory->data[id];
+    scpy(data->message, message);
+    data->id = id;
+    data->ememory_size = sizeof(ememory);
+    data->node_size = sizeof(node);
+    data->nnodes = nnodes;
+    data->nodemem = nodemem;
+    data->nnames = nnames;
+    data->namemem = namemem;
+    data->nstrings = nstrings;
+    data->stringmem = stringmem;
+}
+
+//
+// LISP
+//
+
 //
 // Structure allocation
 //
@@ -261,7 +359,7 @@ node *make_env(node *vars, node *vals, node *env) {
 // builtins
 //
 node *el_car (node *args, node *env) {
-    node *arg = nextarg(&args), *head;
+    node *arg = nextarg(&args), *head = NULLPTR;
     if (consp(arg)) {
         head = car(arg);
     }
@@ -272,7 +370,7 @@ node *el_car (node *args, node *env) {
 }
 
 node *el_cdr (node *args, node *env) {
-    node *arg = nextarg(&args), *tail;
+    node *arg = nextarg(&args), *tail = NULLPTR;
     if (consp(arg)) {
         tail = cdr(arg);
     }
@@ -642,6 +740,12 @@ node *el_unsetyc(node *args, node *env) {
 // init
 //
 node *init_lisp(void) {
+    nnodes = 0;
+    nodemem= 0 ;
+    nnames = 0;
+    namemem = 0;
+    nstrings = 0;
+    stringmem = 0;
     allocated = NULL;
     NULLPTR = sym("NULLPTR");
     globals = NULLPTR;

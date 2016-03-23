@@ -212,13 +212,13 @@
        (or (funcall pred (car lst))
            (any pred (cdr lst)))))
 
-(pow 234 0)
-
-(any numberp '(1 a))
-(length '(0 1 2 3 4 5 6 7 8 9))
-(pow 2 3)
-(any numberp '(a b))
+(assoc 'five '((one two) (three four) (five six) (seven eight)))
+(multiins 'one 'two '(one three one three one three one three))
 (reverse '(1 2 3 4 5 6 7))
-(nthcdr '(1 2 3 4 5) 2)
-(subst 'me 'you '(a list with me))
+(mapcar 'is-prime (3 5 7 11 13 17 19 23 29 31 37 41 43 47))
+(nfibs 10)
+(any numberp '(1 a))
+(intersect '(a b c d e f) '(d e f))
+
+(every numberp '(1 a))
 (gauss 100)

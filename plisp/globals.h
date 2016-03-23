@@ -1,30 +1,19 @@
-node *tee;
-node *nil;
-node *NULLPTR;
-node *globals;
-node *history;
-node *freelist;
-string *stringfreelist;
-namestr *namefreelist;
-node *allocated;
+EXTERNAL node *tee;
+EXTERNAL node *nil;
+EXTERNAL node *NULLPTR;
+EXTERNAL node *globals;
+EXTERNAL node *history;
+EXTERNAL node *freelist;
+EXTERNAL string *stringfreelist;
+EXTERNAL namestr *namefreelist;
+EXTERNAL node *allocated;
 
-string *freeStringArray;
-node *freeNodeArray;
-namestr *freeNameArray;
+EXTERNAL int nnodes;
+EXTERNAL int nodemem;
+EXTERNAL int nnames;
+EXTERNAL int namemem;
+EXTERNAL int nstrings;
+EXTERNAL int stringmem;
 
-char *input, *output, *result;
-int freeStringIndex = 0;
-int freeNodeIndex = 0;
-int freeNameIndex = 0;
-
-int nnodes = 0;
-int nodemem= 0 ;
-int nnames = 0;
-int namemem = 0;
-int nstrings = 0;
-int stringmem = 0;
-
-ememory *memory;
-int id;
-int ycomb = FALSE;
-int evalcar = FALSE;
+EXTERNAL ememory *memory;
+EXTERNAL int id;

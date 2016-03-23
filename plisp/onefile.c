@@ -546,7 +546,7 @@ void coreInit(int argc, char *argv[]) {
         code = readFile(argv[1]);
     }
     else {
-        code = readFile("code/p2.lisp");
+        code = readFile("testfuncs.lisp");
     }
     scpy(memory->data[id].code, code);
     createFreelist(memory, 4, 4);
@@ -736,6 +736,52 @@ stack *popFree(stack **stk) {
     *stk = (*stk)->next;
     item->next = NULL;
     return item;
+}
+
+void mark_expr(node *o, unsigned char persistence) {
+    if ( nullp(o) ) {
+        return;
+    }
+    if (pairp(o) or consp(o)) {
+        mark_expr(o->car, persistence);
+        mark_expr(o->cdr, persistence);
+    } else if (lambdap(o)) {
+        mark_expr(o->args, persistence);
+        mark_expr(o->body, persistence);
+    }
+    if (o->marked <= 1) {
+        o->marked = persistence;
+    }
+    return;
+}
+
+void release_node(node *o) {
+    if ( nullp(o) ) {
+        return;
+    }
+    if (symp(o)) {
+        name_free(o->name);
+    }
+    else if (subrp(o) or fsubrp(o)) {
+        name_free(o->fname);
+    }
+    node_free(o);
+}
+
+void free_unmarked(node **allocated) {
+    node *cpy, **ptr = allocated;
+    while (*ptr isnt NULL) {
+        cpy = *ptr;
+        if (cpy->marked is 0) {
+            *ptr = next(cpy);
+            release_node(cpy);
+        } else {
+            ptr = &next(cpy);
+            if (cpy->marked is 1) {
+                cpy->marked = 0;
+            }
+        }
+    }
 }
 
 //
@@ -1558,6 +1604,7 @@ node *evsym(node *exp, node *env) {
 
 node *eval_list(node *sexp, node *env) {
     node *head = eval(car(sexp), env), *res = NULLPTR;
+    evalcar = FALSE;
     if (subrp(head) or fsubrp(head)) {
         res = evform(head, cdr(sexp), env);
     }
@@ -1577,7 +1624,6 @@ node *eval(node *input, node *env) {
     if (consp(input)) {
         evalcar = TRUE;
         input = eval_list(input, env);
-        evalcar = FALSE;
     }
     else if (symp(input)) {
         input = evsym(input, env);
@@ -1590,12 +1636,18 @@ node *eval(node *input, node *env) {
 //
 void REPL(char *input) {
     node *top_env = init_lisp(), *val, *l;
+    mark_expr(globals, PERMANENT);
+    mark_expr(NULLPTR, PERMANENT);
     l = parse_string(&input);
+    mark_expr(l, PERMANENT);
     forlist (sexp in l) {
         pr(car(sexp));
         clear_bindings(top_env);
         val = eval(car(sexp), top_env);
         pr(val);
+        mark_expr(globals, PERMANENT);
+        mark_expr(history, PERMANENT);
+        free_unmarked(&allocated);
     }
 }
 
