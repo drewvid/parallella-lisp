@@ -2,31 +2,31 @@ import random
 
 setup="""
 (label ff (lambda (x y)
-              (cons (car x) y)
-          )
+							(cons (car x) y)
+					)
 )
 (label xx '(a b))
 (label nfibs (lambda (n)
-                 (if (< n 2) n
-                     (+ 0 (nfibs (- n 1)) (nfibs (- n 2)))
-                 )
-             )
+								 (if (< n 2) n
+										 (+ 0 (nfibs (- n 1)) (nfibs (- n 2)))
+								 )
+						 )
 )
 (label recurse (lambda (x)
-                   (cond ((nilp x) (quote stop))
-                         (t (recurse (cdr x)))
-                   )
-               )
+									 (cond ((nilp x) (quote stop))
+												 (t (recurse (cdr x)))
+									 )
+							 )
 )
 (recurse (a b c d e f))
 (nfibs 10)
 (define n 5)
 (loop (> n 0)
-      (progn 
-          (print n)
-          (define n (- n 1))
-          (terpri 1)
-      )
+			(progn 
+					(print n)
+					(define n (- n 1))
+					(terpri 1)
+			)
 )
 (ff '(a b) (cdr '(c d)))
 ((lambda (x y) (cons (car x) y)) '(a b) (cdr '(c d)))
@@ -41,7 +41,7 @@ setup="""
 (cons "a" (cons "b" nil))
 (quote (car '(a b c)))
 (cond ((= 1 1) (quote stop))
-      (t (quote hi ))
+			(t (quote hi ))
 )
 (label n 1)
 (eval 'n)
@@ -90,12 +90,12 @@ code = """
 
 if __name__ == '__main__':
 
-    lines = code.split("\n");
+		lines = code.split("\n");
 
-    for i in range(16):
-        sample = random.sample(lines, 10)
-        fp = open("p" + str(i) + ".lisp", "w")
-        fp.write(setup + "\n")
-        for line in sample:
-            fp.write(line + "\n")
-        fp.close()
+		for i in range(16):
+				sample = random.sample(lines, 10)
+				fp = open("p" + str(i) + ".lisp", "w")
+				fp.write(setup + "\n")
+				for line in sample:
+						fp.write(line + "\n")
+				fp.close()

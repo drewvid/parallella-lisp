@@ -4,7 +4,7 @@ def prfile(lineIn):
     incfile = lineIn.split('"')[1]
     fp = open(incfile, "r")
     for line in fp:
-	if "include" in line:
+    if "include" in line:
             prfile(line)
         else:
             out.write(line)
