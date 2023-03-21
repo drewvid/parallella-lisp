@@ -40,7 +40,7 @@ More functionality is slowly being added as space permits.
 
 ## Building and Running
 
-The version with gc is in the directory plisp-gc. The lastest version without garbage collection is in the directory plisp. The original version is in the directory plisp-initial. All versions were compiled and tested with esdk.2015.1. To build LISP for the parallella in either of the above mentioned directories type:
+The version with gc is in the directory plisp-gc. The latest version without garbage collection is in the directory plisp. The original version is in the directory plisp-initial. All versions were compiled and tested with esdk.2015.1. To build LISP for the parallella in either of the above-mentioned directories type:
 
       make build
 
@@ -48,7 +48,7 @@ To run LISP type:
 
       make run
 
-If you would like to build lisp to run on your local machine then type:
+If you would like to build lisp to run on your local machine, then type:
 
      make
 
@@ -57,7 +57,7 @@ Two versions of lisp will be built which can be run by typing:
      ./fl
      ./onefile
 
-Both onefile and fl can now be called with a filename. If no filename is given testfuncs.lisp will be interpreted. For instance, to interpret the code that will run on core 3 type in:
+Both onefile and fl can now be called with a filename. If no filename is given, testfuncs.lisp will be interpreted. For instance, to interpret the code that will run on core 3, type in:
 
     ./fl code/p2.lisp
 
@@ -67,7 +67,7 @@ Adding more tests to testfuncs.lisp in the folder plisp-gc is not a good idea be
 
 ## LISP Primitives
 
-Parallella-lisp includes the 10 primitives suggested by John McCarthy which are:
+Parallella-lisp includes the 10 primitives suggested by John McCarthy, which are:
 
     atom
     equal
@@ -120,11 +120,11 @@ In addition the following primitives are included on top of the original 10.
 
 ## The Y-Combinator
 
-The tests directory now contains the code for the derivation of the y-combinator. For things to work I added one c function:
+The tests directory now contains the code for the derivation of the y-combinator. For things to work, I added one c function:
 
     node *bind_variables(node *expr, node *env)
 
-This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived in this blog post [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/) (This post is no longer available).
+This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived in this blog post [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/) (this post is no longer available).
 
 The plisp version along with an example looks like this:
 
