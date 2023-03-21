@@ -124,7 +124,7 @@ The tests directory now contains the code for the derivation of the y-combinator
 
     node *bind_variables(node *expr, node *env)
 
-This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived in this blog post [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/)
+This function is called by a modified evlambda. The Y-Combinator implemented in plisp is very similar to the emacs LISP version and you can read about how this function is derived in this blog post [Y-Combinator in emacs LISP](http://cestdiego.github.io/blog/2015/10/12/y-combinator-in-emacs-lisp/) (This post is no longer available).
 
 The plisp version along with an example looks like this:
 
