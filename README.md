@@ -1,4 +1,4 @@
-<a href="https://app.commanddash.io/agent?github=<your github repo>"><img src="https://img.shields.io/badge/AI-Code%20Gen-EB9FDA"></a>
+<a href="https://app.commanddash.io/agent?github=https://github.com/drewvid/parallella-lisp"><img src="https://img.shields.io/badge/AI-Code%20Gen-EB9FDA"></a>
 # parallella-lisp
 A small implementation of LISP for the Parallella-16 board with basic, mark and sweep, garbage collection
 
