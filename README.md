@@ -1,6 +1,6 @@
 <a href="https://app.commanddash.io/agent?github=https://github.com/drewvid/parallella-lisp"><img src="https://img.shields.io/badge/AI-Code%20Gen-EB9FDA"></a>
 # parallella-lisp
-A small implementation of LISP for the Parallella-16 board with basic, mark and sweep, garbage collection
+A small implementation of LISP for the Parallella-16/64 board with basic, mark and sweep, garbage collection
 
 LISP has a long distinguished history and is the second oldest high level programming language in use today. My interest in the language led me to create a version for the Parallella board. The starting point was a blog post on the parallella forum discussing how much LISP could fit on the board. In trying to answer this question for myself, I came across numerous references to John McCarthy’s paper, "A Micro-Manual for Lisp - not the whole Truth" and started there. The result is a small implementation of lisp which runs on the Parallella-16 board.
 
