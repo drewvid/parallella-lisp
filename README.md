@@ -175,5 +175,5 @@ The file, ycomb.lisp, cotains the the above code along with a modified version o
 
 ## Generating the code for each core and the examples
 
-The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP. The files generated are named p0.lisp to p15.lisp. If you want to change the filenames then you will have to edit fl-device.c and recompile. Python is also used to generate a single file which can be ported easily to another machine for testing and development. The code isn’t documented because I intend to do so with a series of blog posts towards the end of February of this year (2016).
+The LISP code that runs on each core is generated anew by gencode.py when you build or run LISP. The files generated are named p0.lisp to p15.lisp. If you want to change the filenames then you will have to edit fl-device.c and recompile. Python is also used to generate a single file which can be ported easily to another machine for testing and development.
 
